@@ -29,7 +29,7 @@ This is not a production, clinical, regulatory or validated system. It uses synt
 |---|---|
 | [`src/fde_capstone`](src/fde_capstone) | Application, services, adapters, API, CLI and browser frontend |
 | [`docs`](docs/README.md) | Final report, plan, progress, traceability, demo guide and documentation index |
-| [`docs/stages`](docs/stages/README.md) | Academic stage folders; the 185-row register states each artifact's exact status |
+| [`docs/stages`](docs/stages/README.md) | Academic stage folders; the artifact register states each PDF and merged-capability status |
 | [`requirements`](requirements) | Requirements and machine-readable verification/traceability matrices |
 | [`evidence`](evidence) | Local academic repository-verification result; not independent assurance |
 | [`reports`](reports) | Generated JUnit test evidence |

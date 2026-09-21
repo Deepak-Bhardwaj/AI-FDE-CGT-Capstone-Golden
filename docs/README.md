@@ -7,7 +7,7 @@ This directory contains the human-readable capstone record. Runtime code, tests 
 1. [Final Capstone Report](FINAL_CAPSTONE_REPORT.md) — context, problem, achievement, evidence, limitations and lifecycle decision.
 2. [Client Ask and End-to-End Demo](CLIENT_ASK_AND_END_TO_END_DEMO.md) — simple business explanation of the client need, solution and demonstrated flow.
 3. [Client Deliverable Acceptance Matrix](CLIENT_DELIVERABLE_ACCEPTANCE_MATRIX.md) — the brief's ten asks, exact answer locations and remaining proof.
-4. [One-to-One 21-Stage Artifact Register](21_STAGE_ARTIFACT_REGISTER.md) — 185 exact mappings and honest status vocabulary.
+4. [One-to-One 21-Stage Artifact Register](21_STAGE_ARTIFACT_REGISTER.md) — 185 PDF mappings plus merged intelligence, reconciliation, webapp and governance extras, with honest status vocabulary.
 5. [Demo Guide](DEMO_GUIDE.md) — setup and presentation sequence.
 6. [Artifact Index](ARTIFACT_INDEX.md) and [21-Stage Index](stages/README.md) — fast navigation.
 7. [Progress Tracker](CAPSTONE_PROGRESS_TRACKER.md) — local status, evidence and remaining external work.

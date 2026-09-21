@@ -186,6 +186,9 @@ async function presentResults(result) {
   setText('#hero-audit', result.state_digest.slice(0, 12));
   $('#run-scope').textContent = result.scope;
   setProgress(100, 'Journey complete · evidence and audit record verified');
+  if (result.governance?.audit) {
+    renderAuditRecords($('#audit-output'), result.governance.audit, 'Demo-run audit chain');
+  }
   showToast('Synthetic patient-to-batch journey completed successfully.');
 }
 
@@ -338,9 +341,223 @@ async function inspectSourceInject() {
   }
 }
 
-elements.runButtons.forEach((button) => button.addEventListener('click', runDemo));
+function severityClass(severity) {
+  const value = String(severity || '').toLowerCase();
+  if (value === 'critical') return 'severity-critical';
+  if (value === 'high') return 'severity-high';
+  if (value === 'major') return 'severity-major';
+  return '';
+}
+
+function renderAuditRecords(container, snapshot, heading) {
+  container.replaceChildren();
+  appendText(container, 'h4', heading || 'Audit ledger');
+  const valid = snapshot.chain_valid;
+  appendText(container, 'p', valid ? 'Hash chain valid · SHA-256 canonical JSON' : 'Hash chain FAILED — a row was altered, reordered or removed', valid ? '' : 'scope-note');
+  appendText(container, 'p', `${snapshot.entries || 0} records · head ${(snapshot.head || 'GENESIS').slice(0, 16)}`);
+  setText('#gov-audit-valid', valid ? 'VALID' : 'FAILED', valid ? 'value-pass' : 'value-warn');
+  setText('#gov-audit-count', `${snapshot.entries || 0} chained records`);
+  const records = snapshot.records || [];
+  if (!records.length) {
+    appendText(container, 'p', 'No operational audit rows on the live ledger yet. Run the end-to-end demo to populate a disposable chain, or use a mutating API with a configured bearer identity.');
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'ops-table';
+  table.innerHTML = '<thead><tr><th>Time</th><th>Principal</th><th>Action</th><th>Scope</th><th>Outcome</th><th>Hash</th></tr></thead>';
+  const body = document.createElement('tbody');
+  records.forEach((row) => {
+    const tr = document.createElement('tr');
+    [
+      (row.recorded_at || '').replace('T', ' ').slice(0, 19),
+      row.principal || '—',
+      row.action || '—',
+      row.scope || '—',
+      row.outcome || '—',
+      (row.record_hash || '').slice(0, 12),
+    ].forEach((value, index) => {
+      const td = document.createElement('td');
+      td.textContent = value;
+      if (index === 5) td.className = 'mono';
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+  table.appendChild(body);
+  container.appendChild(table);
+}
+
+async function inspectIdentity() {
+  const orchestrationId = $('#identity-orchestration').value.trim();
+  const mrn = $('#identity-mrn').value.trim();
+  const output = $('#identity-output');
+  if (!orchestrationId && !mrn) {
+    output.textContent = 'Enter a synthetic patient key such as P-00001 or an MRN.';
+    return;
+  }
+  output.textContent = 'Loading identity evidence pack…';
+  try {
+    const params = new URLSearchParams();
+    if (orchestrationId) params.set('orchestration_id', orchestrationId);
+    if (mrn) params.set('mrn', mrn);
+    const response = await fetch(`/api/governance/identity?${params.toString()}`);
+    if (!response.ok) throw new Error(`Identity request failed (${response.status})`);
+    const result = await response.json();
+    output.replaceChildren();
+    const key = result.resolved_patient_key || 'unresolved';
+    appendText(output, 'h4', key === 'unresolved' || !key ? 'Unresolved identity' : `Resolved ${key}`);
+    appendText(output, 'p', result.note || 'Evidence pack only.', 'scope-note');
+    const facts = document.createElement('ul');
+    appendText(facts, 'li', `Confidence: ${result.confidence_score}`);
+    appendText(facts, 'li', `Human review: ${result.requires_human_review ? 'required' : 'not required'}`);
+    appendText(facts, 'li', `Authority: ${result.authority_requirement}`);
+    appendText(facts, 'li', `Conflicts: ${result.conflicts.length}`);
+    output.appendChild(facts);
+    if (result.conflicts.length) {
+      result.conflicts.slice(0, 6).forEach((conflict) => {
+        const details = document.createElement('details');
+        appendText(details, 'summary', conflict.type || 'conflict');
+        appendText(details, 'pre', JSON.stringify(conflict, null, 2));
+        output.appendChild(details);
+      });
+    }
+    setText('#gov-identity-key', key || '—');
+    setText('#gov-identity-flag', result.requires_human_review ? 'HITL required' : 'Sources agree');
+  } catch (error) {
+    output.textContent = error.message || 'Identity evidence unavailable';
+  }
+}
+
+async function loadExceptions() {
+  const patientKey = $('#exception-patient').value.trim();
+  const output = $('#exception-output');
+  if (patientKey && !/^P-\d{5}$/.test(patientKey)) {
+    output.textContent = 'Enter a synthetic key such as P-00001, or leave blank for the ranked queue.';
+    return;
+  }
+  output.textContent = 'Loading ranked exceptions…';
+  try {
+    const params = new URLSearchParams({ limit: '12' });
+    if (patientKey) params.set('patient_key', patientKey);
+    const response = await fetch(`/api/governance/exceptions?${params.toString()}`);
+    if (!response.ok) throw new Error(`Exception request failed (${response.status})`);
+    const result = await response.json();
+    output.replaceChildren();
+    appendText(output, 'h4', `${result.shown} of ${result.count} exceptions`);
+    appendText(output, 'p', result.note, 'scope-note');
+    setText('#gov-exception-count', String(result.shown));
+    if (!result.exceptions.length) {
+      appendText(output, 'p', 'No exceptions matched this filter.');
+      return;
+    }
+    const table = document.createElement('table');
+    table.className = 'ops-table';
+    table.innerHTML = '<thead><tr><th>Reference</th><th>Patient</th><th>Type</th><th>Severity</th><th>Recommendation</th></tr></thead>';
+    const body = document.createElement('tbody');
+    result.exceptions.forEach((row) => {
+      const tr = document.createElement('tr');
+      const cells = [
+        row.exception_id,
+        row.patient_id || '—',
+        row.exception_type,
+        row.severity,
+        row.recommendation,
+      ];
+      cells.forEach((value, index) => {
+        const td = document.createElement('td');
+        td.textContent = value;
+        if (index <= 1) td.className = 'mono';
+        if (index === 3) td.className = severityClass(row.severity);
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    table.appendChild(body);
+    output.appendChild(table);
+  } catch (error) {
+    output.textContent = error.message || 'Exception queue unavailable';
+  }
+}
+
+async function loadAudit() {
+  const output = $('#audit-output');
+  output.textContent = 'Verifying hash chain…';
+  try {
+    const response = await fetch('/api/governance/audit?limit=20');
+    if (!response.ok) throw new Error(`Audit request failed (${response.status})`);
+    const snapshot = await response.json();
+    renderAuditRecords(output, snapshot, 'Live operational ledger');
+  } catch (error) {
+    output.textContent = error.message || 'Audit ledger unavailable';
+  }
+}
+
+const VIEW_META = {
+  command: { crumb: 'Command / Overview', title: 'Vein-to-vein command' },
+  roles: { crumb: 'Operate / Roles', title: 'Role workspace' },
+  'source-evidence': { crumb: 'Evidence / Source', title: 'Frozen challenge cases' },
+  governance: { crumb: 'Evidence / Governance', title: 'Identity · exceptions · audit' },
+  pocs: { crumb: 'Operate / Live demo', title: 'Integrated demonstration' },
+  assurance: { crumb: 'Assure / Boundaries', title: 'Confidence without overclaiming' },
+};
+
+const VIEW_ALIASES = {
+  top: 'command',
+  journey: 'command',
+  disruptions: 'source-evidence',
+};
+
+function activateView(viewId, { updateHash = true } = {}) {
+  const id = VIEW_ALIASES[viewId] || viewId;
+  if (!VIEW_META[id]) return;
+  $$('.view').forEach((view) => view.classList.toggle('is-active', view.dataset.view === id));
+  $$('.nav-link[data-nav]').forEach((link) => link.classList.toggle('is-active', link.dataset.nav === id));
+  const meta = VIEW_META[id];
+  setText('#view-crumb', meta.crumb);
+  setText('#view-title', meta.title);
+  document.querySelector('.app')?.classList.remove('rail-open');
+  const toggle = $('[data-toggle-rail]');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  if (updateHash && window.location.hash.replace('#', '') !== id && window.location.hash.replace('#', '') !== viewId) {
+    history.replaceState(null, '', `#${id}`);
+  }
+  $('.viewport')?.scrollTo({ top: 0 });
+}
+
+function activateFromHash() {
+  const raw = window.location.hash.replace('#', '') || 'command';
+  activateView(raw, { updateHash: false });
+  if (raw === 'journey') {
+    $('#journey')?.scrollIntoView({ block: 'start' });
+  }
+}
+
+async function runDemoAndShow() {
+  activateView('pocs');
+  await runDemo();
+}
+
+elements.runButtons.forEach((button) => button.addEventListener('click', runDemoAndShow));
 $('#role-lens').addEventListener('change', renderRoleLens);
 $('#show-source-case').addEventListener('click', inspectSourceCase);
 $('#show-source-inject').addEventListener('click', inspectSourceInject);
+$('#inspect-identity').addEventListener('click', inspectIdentity);
+$('#load-exceptions').addEventListener('click', loadExceptions);
+$('#load-audit').addEventListener('click', loadAudit);
+$$('[data-nav]').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    activateView(link.dataset.nav);
+  });
+});
+$('[data-toggle-rail]')?.addEventListener('click', () => {
+  const app = $('.app');
+  const open = app.classList.toggle('rail-open');
+  $('[data-toggle-rail]').setAttribute('aria-expanded', String(open));
+});
+window.addEventListener('hashchange', activateFromHash);
+activateFromHash();
 loadStatus();
 loadSourceChoices();
+loadExceptions();
+loadAudit();

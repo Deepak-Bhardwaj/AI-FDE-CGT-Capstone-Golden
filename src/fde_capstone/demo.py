@@ -120,7 +120,9 @@ def run_demo(database_path: str | Path, ai_mode: str = "off") -> dict:
             },
             "assistant":{"mode":recommendation["mode"],"rejection_reason":recommendation["rejection_reason"]},
             "assistant_output":recommendation["recommendation"],
-            "audit_chain_valid":app.db.verify_audit_chain(),"state_digest":app.db.state_digest(),"metrics":app.db.metrics(),
+            "audit_chain_valid":app.audit.verify()["chain_valid"],
+            "governance":{"audit":app.audit.snapshot(limit=40)},
+            "state_digest":app.db.state_digest(),"metrics":app.db.metrics(),
         }
     finally:
         app.close()

@@ -5,33 +5,81 @@ import os
 import secrets
 from collections.abc import Mapping
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Literal
 
 try:
     from fastapi import FastAPI, Header, HTTPException
+    from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import FileResponse
     from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel, ConfigDict, Field
 except ImportError as exc:  # pragma: no cover
     raise RuntimeError("Install the api extra to run FastAPI") from exc
 
+from . import frontend_mocks
 from .application import CapstoneApplication
 from .demo import run_demo
 from .disruption_preview import list_injects, preview_inject
+from .intelligence.exception_detector import detect_exceptions, detect_for_patient
 from .model import Principal
+from .reconciliation.patient_resolver import resolve_patient
 from .security import AuthorizationError
+from .services.common import authorize, correlation
 from .source_cases import list_eval_cases, load_eval_case, reconstruct_source_journey
 
 WEB_DIR = Path(__file__).with_name("web")
 ROOT = Path(__file__).resolve().parents[2]
+CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
+DEMO_PERSONAS = (
+    "Patient Operations",
+    "Identity",
+    "Logistics/Planning",
+    "Manufacturing",
+    "Lab/QC",
+    "Quality",
+    "Executive",
+)
+DEMO_LOGIN_TOKEN = "demo-token-123"
+DEMO_NAV_ACTIONS = (
+    "register_patient",
+    "adjudicate_registration",
+)
+DEMO_ACCOUNTS = (
+    {"username": "patient_ops", "display_name": "Patient Operations", "role_label": "Patient Operations Coordinator"},
+    {"username": "identity", "display_name": "Identity", "role_label": "Identity Authority"},
+    {"username": "logistics", "display_name": "Logistics/Planning", "role_label": "Logistics / Manufacturing Planner"},
+    {"username": "manufacturing", "display_name": "Manufacturing", "role_label": "Manufacturing Operations"},
+    {"username": "lab_qc", "display_name": "Lab/QC", "role_label": "Lab / Quality Control"},
+    {"username": "quality", "display_name": "Quality", "role_label": "Quality Authority"},
+    {"username": "executive", "display_name": "Executive", "role_label": "Executive / Operations Viewer"},
+)
+
+
+class DemoLoginRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    username: str = ""
+    password: str = ""
+    role: str = ""
 
 
 class DemoRunRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     ai_mode: Literal["off", "fake"] = "off"
+
+
+class AgentInvokeRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    subject: str = ""
+
+
+class LoosePayload(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
 
 class SlotReservationRequest(BaseModel):
@@ -77,6 +125,178 @@ def _identities_from_environment() -> dict[str, Principal]:
     return identities
 
 
+def _resolve_demo_account(username: str = "", role: str = "") -> dict[str, str]:
+    needle = (username or role or "").strip().lower()
+    if needle:
+        for account in DEMO_ACCOUNTS:
+            haystack = {
+                account["username"].lower(),
+                account["display_name"].lower(),
+                account["role_label"].lower(),
+            }
+            if needle in haystack or needle.replace(" ", "_") == account["username"]:
+                return dict(account)
+    return dict(DEMO_ACCOUNTS[0])
+
+
+def _demo_session(account: dict[str, str]) -> dict[str, Any]:
+    return {
+        "status": "success",
+        "message": "Login successful",
+        "token": DEMO_LOGIN_TOKEN,
+        "role": {
+            "name": account["username"],
+            "label": account["role_label"],
+            "description": f"{account['display_name']} demo persona. Synthetic academic only; not IAM.",
+            "actions": list(DEMO_NAV_ACTIONS),
+        },
+        "user": {
+            "username": account["username"],
+            "display_name": account["display_name"],
+            "identity": account["username"],
+            "job_title": account["role_label"],
+        },
+        "persona": account["display_name"],
+        "scope": "SYNTHETIC_DEMO_LOGIN",
+    }
+
+
+def _demo_overview() -> dict[str, Any]:
+    return {
+        "active_patients": 12,
+        "pending_batches": 3,
+        "exceptions": 1,
+        "system_status": "operational",
+        "sampled": 50,
+        "policy_version": "academic-poc",
+        "legacy_declared_ready": 9,
+        "governed_declared_ready": 0,
+        "identity_queue": 4,
+        "coi_from_email": 2,
+        "divergence": {"legacy_says_ready_but_qa_has_not_released": 6},
+        "release_integrity": {"released_with_unresolved_qc": 1},
+        "readiness": {
+            "READY": 0,
+            "BLOCKED": 22,
+            "CONFLICT": 8,
+            "UNKNOWN": 11,
+            "NEEDS_EVIDENCE": 9,
+        },
+        "gate_failures": {
+            "G1": 4,
+            "G2": 3,
+            "G3": 5,
+            "G4": 2,
+            "G5": 7,
+            "G6": 9,
+            "G7": 6,
+            "G8": 8,
+            "G9": 3,
+            "G10": 50,
+        },
+        "scope": "SYNTHETIC_DASHBOARD_MOCK",
+    }
+
+
+def _demo_agents() -> dict[str, Any]:
+    callers = [account["username"] for account in DEMO_ACCOUNTS]
+    agents = [
+        {
+            "id": "AG-TRIAGE",
+            "agent_id": "AG-TRIAGE",
+            "name": "Triage Agent",
+            "status": "ready",
+            "action_class": "B",
+            "purpose": "Rank open exceptions by patient impact. Advisory only; it cannot close a deviation or change readiness.",
+            "authority": "Human reviewer",
+            "prohibited": [
+                "Merge patient identity",
+                "Authorize QA release",
+                "Dispatch a manufacturing slot",
+            ],
+            "contract": {
+                "allowed_callers": callers,
+                "data_classification": "synthetic-operational",
+                "side_effects": "none",
+                "approval_required": "No — recommendation only",
+            },
+        },
+        {
+            "id": "AG-QC",
+            "agent_id": "AG-QC",
+            "name": "QC Agent",
+            "status": "ready",
+            "action_class": "B",
+            "purpose": "Summarize QC packet completeness. It cannot disposition a result or release a batch.",
+            "authority": "Quality Authority",
+            "prohibited": [
+                "Disposition QC OOS",
+                "Approve product release",
+                "Alter MES or QMS state",
+            ],
+            "contract": {
+                "allowed_callers": callers,
+                "data_classification": "synthetic-qc",
+                "side_effects": "none",
+                "approval_required": "No — recommendation only",
+            },
+        },
+    ]
+    return {
+        "principle": "Assistants explain and rank. Deterministic gates decide. Authorized humans act.",
+        "model": {
+            "name": "bounded-fake",
+            "version": "off",
+            "prompt_version": "academic-poc",
+            "llm_configured": False,
+        },
+        "agents": agents,
+        "no_agent_by_design": [
+            {"action": "identity.merge", "authority": "Identity Authority"},
+            {"action": "quality.release", "authority": "Quality Authority"},
+            {"action": "slot.dispatch", "authority": "Manufacturing planner"},
+        ],
+        "scope": "SYNTHETIC_ADVISORY_AGENTS",
+    }
+
+
+def _demo_agent_result(agent_id: str, subject: str = "") -> dict[str, Any]:
+    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    catalogue = {agent["agent_id"]: agent for agent in _demo_agents()["agents"]}
+    agent = catalogue.get(agent_id) or {
+        "agent_id": agent_id,
+        "name": agent_id,
+        "action_class": "B",
+        "authority": "Human reviewer",
+    }
+    target = subject or "cohort"
+    return {
+        "agent_id": agent["agent_id"],
+        "action_class": agent.get("action_class", "B"),
+        "subject": subject,
+        "summary": "Patient data reconciled as an advisory view only. No identity merge, slot, or Quality release was applied.",
+        "confidence": 0.74,
+        "uncertainty": "Synthetic fixture. Rankings are not a clinical or Quality decision.",
+        "required_authority": agent.get("authority", "Human reviewer"),
+        "findings": [
+            {"item": "Identity conflicts remain unresolved", "count": 4, "owner": "Identity Authority"},
+            {"item": "QC packet incomplete at G6", "count": 9, "owner": "Lab / QC"},
+        ],
+        "evidence": [
+            {
+                "source": "source_baseline",
+                "fact": "patient_key",
+                "value": target,
+                "ref": "frozen-csv",
+                "trust": "UNKNOWN",
+            }
+        ],
+        "model": {"name": "bounded-fake", "version": "off", "prompt_version": "academic-poc"},
+        "invoked_at": now,
+        "applied_automatically": False,
+    }
+
+
 def create_app(
     database_path: str | Path | None = None,
     demo_identities: Mapping[str, Principal] | None = None,
@@ -111,6 +331,13 @@ def create_app(
         description="Synthetic academic CGT patient-to-batch orchestration demonstration.",
         lifespan=lifespan,
     )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(CORS_ORIGINS),
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "OPTIONS", "HEAD"],
+        allow_headers=["*"],
+    )
     app.state.service = None
     app.mount("/assets", StaticFiles(directory=WEB_DIR), name="assets")
 
@@ -134,6 +361,246 @@ def create_app(
             "ai_mode": service.ai_mode,
             "audit_valid": service.db.verify_audit_chain(),
         }
+
+    @app.get("/api/health")
+    def api_health() -> dict[str, Any]:
+        payload = health()
+        return {
+            "status": "ok",
+            "synthetic": True,
+            "llm_configured": False,
+            "policy_version": "academic-poc",
+            "scope": payload["scope"],
+            "ai_mode": payload["ai_mode"],
+            "audit_valid": payload["audit_valid"],
+        }
+
+    @app.get("/api/auth/accounts")
+    def auth_accounts() -> dict[str, Any]:
+        return {
+            "scope": "SYNTHETIC_DEMO_PERSONAS",
+            "personas": list(DEMO_PERSONAS),
+            "accounts": [dict(account) for account in DEMO_ACCOUNTS],
+        }
+
+    @app.get("/api/personas")
+    def personas() -> dict[str, Any]:
+        return auth_accounts()
+
+    @app.post("/api/auth/login")
+    def auth_login(payload: DemoLoginRequest | None = None) -> dict[str, Any]:
+        requested = payload or DemoLoginRequest()
+        account = _resolve_demo_account(requested.username, requested.role)
+        return _demo_session(account)
+
+    @app.get("/api/auth/me")
+    def auth_me(authorization: Annotated[str | None, Header()] = None) -> dict[str, Any]:
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(401, "bearer token required")
+        token = authorization.removeprefix("Bearer ").strip()
+        if token != DEMO_LOGIN_TOKEN:
+            raise HTTPException(401, "invalid bearer token")
+        return _demo_session(dict(DEMO_ACCOUNTS[0]))
+
+    @app.post("/api/auth/logout")
+    def auth_logout() -> dict[str, str]:
+        return {"status": "success", "message": "Signed out"}
+
+    @app.get("/api/overview")
+    def api_overview() -> dict[str, Any]:
+        return _demo_overview()
+
+    @app.get("/api/agents")
+    def api_agents() -> dict[str, Any]:
+        return _demo_agents()
+
+    @app.get("/api/agents/activity")
+    def api_agent_activity(limit: int = 25) -> dict[str, Any]:
+        return frontend_mocks.agent_activity(limit)
+
+    @app.post("/api/agents/{agent_id}/invoke")
+    def api_invoke_agent(agent_id: str, payload: AgentInvokeRequest | None = None) -> dict[str, Any]:
+        requested = payload or AgentInvokeRequest()
+        result = _demo_agent_result(agent_id, requested.subject)
+        return {
+            "status": "success",
+            "message": f"{result['agent_id']} invoked successfully",
+            "result": result,
+        }
+
+    def _body(payload: LoosePayload | None) -> dict[str, Any]:
+        return payload.model_dump(exclude_none=False) if payload is not None else {}
+
+    @app.get("/api/workflow")
+    def api_workflow() -> dict[str, Any]:
+        pipeline = frontend_mocks.workflow_pipeline()
+        journey = frontend_mocks.patient_journey("P-00005")
+        return {
+            "sampled": pipeline["sampled"],
+            "stages": pipeline["stages"],
+            "journey": journey["stages"],
+            "steps": journey["stages"],
+            "patients": [journey],
+            "scope": pipeline["scope"],
+        }
+
+    @app.get("/api/workflow/{patient_key}/timeline")
+    def api_workflow_timeline(patient_key: str) -> dict[str, Any]:
+        return frontend_mocks.timeline(patient_key)
+
+    @app.get("/api/workflow/{patient_key}/actions/{stage_id}")
+    def api_workflow_action(patient_key: str, stage_id: str) -> dict[str, Any]:
+        return frontend_mocks.stage_action(patient_key, stage_id)
+
+    @app.post("/api/workflow/{patient_key}/actions/{stage_id}/decide")
+    def api_workflow_decide(
+        patient_key: str,
+        stage_id: str,
+        payload: LoosePayload | None = None,
+    ) -> dict[str, Any]:
+        return frontend_mocks.record_decision(patient_key, stage_id, _body(payload))
+
+    @app.get("/api/workflow/{patient_key}")
+    def api_workflow_patient(patient_key: str) -> dict[str, Any]:
+        return frontend_mocks.patient_journey(patient_key)
+
+    @app.get("/api/journeys")
+    def api_journeys(q: str = "", readiness: str = "", limit: int = 60) -> dict[str, Any]:
+        return frontend_mocks.journeys(q, readiness, limit)
+
+    @app.get("/api/journeys/{patient_key}")
+    def api_journey_detail(patient_key: str) -> dict[str, Any]:
+        return frontend_mocks.journey_detail(patient_key)
+
+    @app.get("/api/planning/projection")
+    def api_planning(start: str = "2026-09-21") -> dict[str, Any]:
+        return frontend_mocks.planning_projection(start)
+
+    @app.get("/api/exceptions")
+    def api_exceptions(limit: int = 25) -> dict[str, Any]:
+        return frontend_mocks.exceptions(limit)
+
+    @app.get("/api/capacity")
+    def api_capacity() -> dict[str, Any]:
+        return frontend_mocks.capacity()
+
+    @app.get("/api/audit/access")
+    def api_audit_access(limit: int = 40) -> dict[str, Any]:
+        return frontend_mocks.audit_access(limit)
+
+    @app.get("/api/audit/decisions")
+    def api_audit_decisions(limit: int = 20) -> dict[str, Any]:
+        return frontend_mocks.audit_decisions(limit)
+
+    @app.get("/api/scheduling/board")
+    def api_scheduling_board(limit: int = 40) -> dict[str, Any]:
+        return frontend_mocks.scheduling_board(limit)
+
+    @app.post("/api/scheduling/propose/{patient_key}")
+    def api_scheduling_propose(patient_key: str) -> dict[str, Any]:
+        return frontend_mocks.propose_slot(patient_key)
+
+    @app.post("/api/scheduling/approve/{patient_key}")
+    def api_scheduling_approve(patient_key: str) -> dict[str, Any]:
+        return frontend_mocks.approve_slot(patient_key)
+
+    @app.get("/api/enrolment/reference")
+    def api_enrolment_reference() -> dict[str, Any]:
+        return frontend_mocks.enrolment_reference()
+
+    @app.get("/api/enrolment")
+    def api_enrolment() -> dict[str, Any]:
+        return frontend_mocks.enrolment_registry()
+
+    @app.post("/api/enrolment/register")
+    def api_enrolment_register(payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.enrol_register(_body(payload))
+
+    @app.post("/api/enrolment/{registration_id}/decide/countersign")
+    def api_enrolment_countersign(
+        registration_id: str,
+        payload: LoosePayload | None = None,
+    ) -> dict[str, Any]:
+        return frontend_mocks.enrol_countersign(registration_id, _body(payload))
+
+    @app.post("/api/enrolment/{registration_id}/decide")
+    def api_enrolment_decide(
+        registration_id: str,
+        payload: LoosePayload | None = None,
+    ) -> dict[str, Any]:
+        return frontend_mocks.enrol_decide(registration_id, _body(payload))
+
+    @app.get("/api/tracking")
+    def api_tracking(limit: int = 50, only_issues: bool = False) -> dict[str, Any]:
+        return frontend_mocks.tracking_board(limit)
+
+    @app.get("/api/tracking/{shipment_id}")
+    def api_tracking_detail(shipment_id: str) -> dict[str, Any]:
+        return frontend_mocks.tracking_detail(shipment_id)
+
+    @app.get("/api/logistics/excursions")
+    def api_logistics_excursions() -> dict[str, Any]:
+        return frontend_mocks.logistics_excursions()
+
+    @app.get("/api/intake/samples")
+    def api_intake_samples() -> dict[str, Any]:
+        return frontend_mocks.intake_samples()
+
+    @app.get("/api/intake")
+    def api_intake() -> dict[str, Any]:
+        return frontend_mocks.intake()
+
+    @app.post("/api/intake/upload")
+    def api_intake_upload(payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.intake_upload(_body(payload))
+
+    @app.post("/api/intake/proposals/{proposal_id}/decide")
+    def api_intake_decide(proposal_id: str, payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.intake_decide(proposal_id, _body(payload))
+
+    @app.get("/api/identity/queue")
+    def api_identity_queue(limit: int = 40) -> dict[str, Any]:
+        return frontend_mocks.identity_queue(limit)
+
+    @app.post("/api/identity/{patient_key}/merge")
+    def api_identity_merge(patient_key: str) -> dict[str, Any]:
+        return frontend_mocks.identity_merge(patient_key)
+
+    @app.get("/api/evidence/documents")
+    def api_evidence_documents() -> dict[str, Any]:
+        return frontend_mocks.evidence_documents()
+
+    @app.post("/api/evidence/probe")
+    def api_evidence_probe(payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.evidence_probe(_body(payload))
+
+    @app.get("/api/approvals")
+    def api_approvals(action: str = "release_product") -> dict[str, Any]:
+        return frontend_mocks.approvals(action)
+
+    @app.post("/api/release/{patient_key}/approve")
+    def api_release_approve(patient_key: str, payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.release_approve(patient_key, _body(payload))
+
+    @app.post("/api/release/{patient_key}/countersign")
+    def api_release_countersign(patient_key: str, payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.release_countersign(patient_key, _body(payload))
+
+    @app.post("/api/release/{patient_key}/reject")
+    def api_release_reject(patient_key: str, payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.release_reject(patient_key, _body(payload))
+
+    @app.post("/api/rejections/{rejection_id}/withdraw")
+    def api_withdraw_rejection(rejection_id: str, payload: LoosePayload | None = None) -> dict[str, Any]:
+        return frontend_mocks.withdraw_rejection(rejection_id, _body(payload))
+
+    @app.get("/api/lots/{lot_id}/reviewer-packet")
+    def api_reviewer_packet(lot_id: str) -> dict[str, Any]:
+        return frontend_mocks.reviewer_packet(lot_id)
+
+    @app.post("/api/attestations/{attestation_id}/withdraw")
+    def api_withdraw_attestation(attestation_id: str) -> dict[str, Any]:
+        return frontend_mocks.withdraw_attestation(attestation_id)
 
     @app.get("/", include_in_schema=False)
     def control_tower() -> FileResponse:
@@ -241,6 +708,120 @@ def create_app(
             )
         except AuthorizationError as exc:
             raise HTTPException(403, str(exc)) from exc
+
+    @app.get("/reconcile/patient")
+    def reconcile_patient(
+        orchestration_id: str | None = None,
+        crm_id: str | None = None,
+        clinical_id: str | None = None,
+        mrn: str | None = None,
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict[str, Any]:
+        principal = demo_principal(authorization)
+        service = get_service()
+        trace = correlation()
+        try:
+            authorize(service.db, principal, "read", "*", trace)
+        except AuthorizationError as exc:
+            raise HTTPException(403, str(exc)) from exc
+        result = resolve_patient(
+            orchestration_id=orchestration_id,
+            crm_id=crm_id,
+            clinical_id=clinical_id,
+            mrn=mrn,
+        )
+        scope = result.get("resolved_patient_key") or "*"
+        service.audit.record(
+            principal,
+            "read",
+            scope,
+            "ALLOWED",
+            {
+                "endpoint": "/reconcile/patient",
+                "rule_version": result.get("rule_version"),
+                "requires_human_review": result.get("requires_human_review"),
+            },
+            trace,
+        )
+        service.db.metric("patient_reconcile")
+        return result
+
+    @app.get("/intelligence/exceptions")
+    def intelligence_exceptions(
+        patient_key: str | None = None,
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict[str, Any]:
+        principal = demo_principal(authorization)
+        service = get_service()
+        trace = correlation()
+        scope = patient_key or "*"
+        try:
+            authorize(service.db, principal, "read", scope, trace)
+        except AuthorizationError as exc:
+            raise HTTPException(403, str(exc)) from exc
+        rows = detect_for_patient(patient_key) if patient_key else detect_exceptions()
+        service.audit.record(
+            principal,
+            "read",
+            scope,
+            "ALLOWED",
+            {
+                "endpoint": "/intelligence/exceptions",
+                "count": len(rows),
+            },
+            trace,
+        )
+        service.db.metric("intelligence_exceptions")
+        return {
+            "count": len(rows),
+            "exceptions": rows,
+            "requires_human_review": True,
+            "autonomous_action": "none",
+            "scope": "SYNTHETIC_SOURCE_ASSERTIONS_ONLY",
+            "note": "Recommendations only. Does not change patient, batch, QMS, or shipment state.",
+        }
+
+    @app.get("/api/governance/identity")
+    def governance_identity(
+        orchestration_id: str | None = None,
+        crm_id: str | None = None,
+        clinical_id: str | None = None,
+        mrn: str | None = None,
+    ) -> dict[str, Any]:
+        result = resolve_patient(
+            orchestration_id=orchestration_id,
+            crm_id=crm_id,
+            clinical_id=clinical_id,
+            mrn=mrn,
+        )
+        return {
+            "scope": "SYNTHETIC_SOURCE_ASSERTIONS_ONLY",
+            "autonomous_action": "none",
+            "note": "Evidence pack only. Does not merge identity or rewrite source rows.",
+            **result,
+        }
+
+    @app.get("/api/governance/exceptions")
+    def governance_exceptions(patient_key: str | None = None, limit: int = 12) -> dict[str, Any]:
+        rows = detect_for_patient(patient_key) if patient_key else detect_exceptions()
+        cap = max(1, min(limit, 40))
+        return {
+            "count": len(rows),
+            "shown": min(len(rows), cap),
+            "exceptions": rows[:cap],
+            "requires_human_review": True,
+            "autonomous_action": "none",
+            "scope": "SYNTHETIC_SOURCE_ASSERTIONS_ONLY",
+            "note": "Recommendations only. Does not change patient, batch, QMS, or shipment state.",
+        }
+
+    @app.get("/api/governance/audit")
+    def governance_audit(limit: int = 40) -> dict[str, Any]:
+        snapshot = get_service().audit.snapshot(limit=limit)
+        return {
+            "scope": "SYNTHETIC_LOCAL_ACADEMIC_POC",
+            **snapshot,
+        }
 
     return app
 

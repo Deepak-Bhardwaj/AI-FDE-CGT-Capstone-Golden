@@ -6,6 +6,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 01,S01-A05,Governance RACI,docs/stages/stage_01/04_GOVERNANCE_RACI_AND_DECISION_RIGHTS.md,PARTIAL,Capstone Owner,Role hypotheses require confirmation
 01,S01-A06,Stakeholder and affected-groups maps,docs/stages/stage_01/03_STAKEHOLDER_AND_AFFECTED_GROUPS_MAP.md,PARTIAL,Capstone Owner,No field stakeholder interviews
 01,S01-A07,Field-evidence register,docs/stages/stage_01/05_FIELD_EVIDENCE_REGISTER.md,PRESENT_INTERNAL,Evidence Owner,Frozen source locators recorded
+01,S01-N01,Merged participant engagement charter,docs/stages/01_mandate_and_field_immersion/engagement-charter.md,COMPLETED,Capstone Owner,Named-folder charter completed in academic scope; AI cannot replace QA Release Authority
+01,S01-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Charter constraint recorded: AI cannot issue clinical quality-release COI or COC decisions. Exception detector is observe/recommend only.
+01,S01-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Identity reconciliation is in scope as evidence work; never merge on conflict and never replace QA.
+01,S01-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Control Tower exists in the merged repo; Stage 01 charter still does not treat UI as the mandate artifact.
+01,S01-M04,Governance and audit (merged capability),docs/stages/stage_01/04_GOVERNANCE_RACI_AND_DECISION_RIGHTS.md,VERIFIED,AI Governance Owner,RACI and decision rights recorded; named sponsor signoff still external.
 02,S02-A01,SIPOC,docs/stages/stage_02/03_CURRENT_STATE_PROCESS_AND_ARCHITECTURE.md,PRESENT_INTERNAL,Architecture Owner,Synthetic process reconstruction
 02,S02-A02,Process and value-stream maps,docs/stages/stage_02/03_CURRENT_STATE_PROCESS_AND_ARCHITECTURE.md,PRESENT_INTERNAL,Architecture Owner,Journey and exceptions shown
 02,S02-A03,Waste register,docs/stages/stage_02/04_WASTE_DEPENDENCY_AND_RISK_REGISTER.md,PRESENT_INTERNAL,Operations Owner,Shadow work and waste evidenced
@@ -15,6 +20,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 02,S02-A07,Dependencies,docs/stages/stage_02/04_WASTE_DEPENDENCY_AND_RISK_REGISTER.md,PRESENT_INTERNAL,Architecture Owner,Cross-domain dependency register
 02,S02-A08,Data flows,docs/stages/stage_02/03_CURRENT_STATE_PROCESS_AND_ARCHITECTURE.md,PRESENT_INTERNAL,Data Owner,Source flow assessment
 02,S02-A09,Trust boundaries,docs/stages/stage_02/03_CURRENT_STATE_PROCESS_AND_ARCHITECTURE.md,PRESENT_INTERNAL,Security Owner,Preliminary trust-boundary table
+02,S02-N01,Merged participant brownfield assessment,docs/stages/02_discover_process_and_architecture/brownfield-assessment.md,COMPLETED,Architecture Owner,Named-folder brownfield assessment completed against frozen source evidence
+02,S02-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Exception detector reconstructs current-state conflicts from frozen CSVs without rewriting source systems.
+02,S02-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Resolver compares frozen source identifiers; conflicts stay visible in the current-state reconstruction.
+02,S02-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Browser views show reconstructed journeys; they do not rewrite brownfield systems.
+02,S02-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Governance of shadow-ops evidence is documented; field interviews remain absent.
 03,S03-A01,SCQA problem frame,docs/stages/stage_03/01_SCQA_AND_PRIORITIZED_PROBLEM.md,PRESENT_INTERNAL,Product Owner,Evidence-backed priority statement
 03,S03-A02,Root-cause analysis,docs/stages/stage_03/02_ROOT_CAUSE_ANALYSIS.md,PRESENT_INTERNAL,Product Owner,Causal hypotheses linked to source findings
 03,S03-A03,Baseline dataset,docs/stages/stage_03/kpi_baseline.csv,PARTIAL,Analytics Owner,Reproduced forensic metrics but business formulas absent
@@ -23,6 +33,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 03,S03-A06,Value hypothesis,docs/stages/stage_03/04_VALUE_CTQ_AND_SUCCESS_CRITERIA.md,PRESENT_INTERNAL,Product Owner,Hypothesis not claimed achieved
 03,S03-A07,Counter-metrics,docs/stages/stage_03/04_VALUE_CTQ_AND_SUCCESS_CRITERIA.md,PRESENT_INTERNAL,Analytics Owner,False-block and burden guards
 03,S03-A08,Success and failure criteria,docs/stages/stage_03/04_VALUE_CTQ_AND_SUCCESS_CRITERIA.md,PRESENT_INTERNAL,Product Owner,POC thresholds distinct from outcome
+03,S03-N01,Merged participant SCQA problem frame,docs/stages/03_frame_problem_root_cause_and_value/scqa-problem-frame.md,COMPLETED,Product Owner,Named-folder SCQA completed; value not claimed as observed benefit
+03,S03-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Intelligence ranks process failures behind the SCQA; it does not claim observed business benefit.
+03,S03-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Root-cause of identifier collision is explained without collapsing rows.
+03,S03-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Dashboard frames the SCQA; it does not display observed after-intervention KPIs.
+03,S03-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Success criteria separate POC thresholds from claimed outcomes.
 04,S04-A01,Impact and regulatory screen,docs/stages/stage_04/01_INTENDED_PURPOSE_AND_APPLICABILITY_SCREEN.md,PARTIAL,Legal Regulatory Privacy,Expert applicability determination open
 04,S04-A02,Prohibited-use check,docs/stages/stage_04/04_AUTHORITY_AND_PROHIBITED_USE_POLICY.md,PRESENT_INTERNAL,AI Governance Owner,Academic prohibited actions defined
 04,S04-A03,AI suitability assessment,docs/stages/stage_04/03_AI_SUITABILITY_AND_NON_AI_ALTERNATIVE.md,PRESENT_INTERNAL,Product Owner,Deterministic first choice documented
@@ -30,6 +45,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 04,S04-A05,Use-case card,docs/stages/stage_04/02_USE_CASE_CARDS_AND_AI_BOUNDARIES.md,PRESENT_INTERNAL,Product Owner,Three POC cards and AI boundary
 04,S04-A06,Value-risk-feasibility matrix,docs/stages/stage_04/05_VALUE_RISK_FEASIBILITY_AND_G1_DECISION.md,PRESENT_INTERNAL,Product Owner,Internal academic decision only
 04,S04-A07,Go-no-go and kill criteria,docs/stages/stage_04/05_VALUE_RISK_FEASIBILITY_AND_G1_DECISION.md,PRESENT_INTERNAL,Capstone Owner,P0 containment rules documented
+04,S04-N01,Merged participant AI suitability assessment,docs/stages/04_triage_regulation_and_qualify_use_case/ai-suitability-assessment.md,COMPLETED,Product Owner,Named-folder suitability completed; deterministic first and AI-off path retained
+04,S04-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Suitability boundary holds: intelligence is advisory and the AI-off path remains.
+04,S04-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Use-case card: reconciliation is human-authorized; AI cannot execute COI merge.
+04,S04-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,UI cannot issue prohibited clinical or release actions.
+04,S04-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Prohibited-use and authority policy is the G1 containment control.
 05,S05-A01,Glossary,docs/stages/stage_05/01_DOMAIN_GLOSSARY.md,PRESENT_INTERNAL,Domain Owner,Ubiquitous language defined
 05,S05-A02,Domain capability map,docs/stages/stage_05/02_CAPABILITY_BOUNDED_CONTEXT_AND_CONTEXT_MAP.md,PRESENT_INTERNAL,Domain Owner,Capabilities and seams mapped
 05,S05-A03,Business rules,docs/stages/stage_05/04_BUSINESS_RULES_AND_DECISION_TABLES.md,PARTIAL,Clinical Quality Owners,Synthetic rules need controlled owner policy
@@ -38,6 +58,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 05,S05-A06,Ownership map,docs/stages/stage_05/03_AGGREGATES_OWNERSHIP_AND_AUTHORITY.md,PARTIAL,Clinical Quality Owners,Real decision owners unconfirmed
 05,S05-A07,DDD context map,docs/stages/stage_05/02_CAPABILITY_BOUNDED_CONTEXT_AND_CONTEXT_MAP.md,PRESENT_INTERNAL,Domain Owner,Context relationships described
 05,S05-A08,Bounded contexts,docs/stages/stage_05/02_CAPABILITY_BOUNDED_CONTEXT_AND_CONTEXT_MAP.md,PRESENT_INTERNAL,Domain Owner,Context contracts defined
+05,S05-N01,Merged participant ubiquitous language glossary,docs/stages/05_model_the_domain/ubiquitous-language-glossary.md,COMPLETED,Domain Owner,Named-folder glossary completed; identity and authority terms aligned to code
+05,S05-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Exception language uses ubiquitous identity and authority terms; no model discretion over state.
+05,S05-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Patient keys stay source-specific until a human decides; glossary forbids silent merge.
+05,S05-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Screens use glossary terms; authority stays in services not in the browser.
+05,S05-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Aggregates and ownership map keep QA Release Authority human.
 06,S06-A01,Data and knowledge inventories,docs/stages/stage_06/01_DATA_AND_KNOWLEDGE_INVENTORY.md,PRESENT_INTERNAL,Data Owner,Frozen synthetic sources inventoried
 06,S06-A02,Lineage,docs/stages/stage_06/03_LINEAGE_PROVENANCE_AND_SOURCE_TRUST.md,PRESENT_INTERNAL,Data Owner,Source-to-decision chain designed
 06,S06-A03,Quality profile,docs/stages/stage_06/02_DATA_QUALITY_PROFILE_AND_ISSUE_REGISTER.md,PRESENT_INTERNAL,Data Owner,Measured source anomalies
@@ -46,6 +71,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 06,S06-A06,Representativeness assessment,docs/stages/stage_06/05_REPRESENTATIVENESS_AND_DATA_GAP_REGISTER.md,PARTIAL,Data Owner,Synthetic data cannot prove external representativeness
 06,S06-A07,Data-gap register,docs/stages/stage_06/05_REPRESENTATIVENESS_AND_DATA_GAP_REGISTER.md,PRESENT_INTERNAL,Data Owner,Unresolved ground truth and policy gaps recorded
 06,S06-A08,Dataset datasheets,docs/stages/stage_06/06_DATASET_DATASHEETS_AND_SOP_REGISTER.md,PRESENT_INTERNAL,Data Owner,Grouped datasheets and controlled SOP status
+06,S06-N01,Merged participant data lineage and quality profile,docs/stages/06_qualify_data_and_knowledge/data-lineage-and-quality-profile.md,COMPLETED,Data Owner,Named-folder lineage completed on frozen CSVs; not external representativeness
+06,S06-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Exceptions are derived from lineage-located CSV fields; unknown stays unknown.
+06,S06-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Resolver reads source_baseline CSVs; lineage locators remain the system of record.
+06,S06-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,UI reads located source fields; it is not a data-edit surface.
+06,S06-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Access and permissible-use register is academic; real provider use unresolved.
 07,S07-A01,Evaluation strategy,docs/stages/stage_07/01_EVALUATION_STRATEGY_AND_THRESHOLDS.md,PRESENT_INTERNAL,TEVV Owner,Frozen case strategy
 07,S07-A02,Golden-set specification,docs/stages/stage_07/02_SCENARIO_CATALOG_AND_GOLDEN_SET.md,PRESENT_INTERNAL,TEVV Owner,Public synthetic seeds and label governance
 07,S07-A03,Scenarios,docs/stages/stage_07/evaluation_catalog.json,PRESENT_INTERNAL,TEVV Owner,57 specified cases
@@ -54,6 +84,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 07,S07-A06,Risk and harms registers,docs/stages/stage_07/04_RISK_HARMS_AND_TREATMENT_REGISTER.md,PRESENT_INTERNAL,AI Governance Owner,Synthetic harm scenarios recorded
 07,S07-A07,Risk treatment,docs/stages/stage_07/04_RISK_HARMS_AND_TREATMENT_REGISTER.md,PARTIAL,Clinical Quality Owners,Real residual risk acceptance unavailable
 07,S07-A08,Oversight and transparency requirements,docs/stages/stage_07/05_HUMAN_OVERSIGHT_AND_REVIEW_PROTOCOL.md,PARTIAL,Human Factors Owner,Human-study evidence still inconclusive
+07,S07-N01,Merged participant evaluation strategy,docs/stages/07_define_evaluations_impacts_and_risks/evaluation-strategy.md,COMPLETED,TEVV Owner,Named-folder evaluation strategy completed; independent assurance still external
+07,S07-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Evaluation strategy covers exception properties; detector does not execute treatment.
+07,S07-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,EVAL-002 identity cases remain; resolver recommends and does not auto-merge.
+07,S07-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Reviewer packet and exception queue are demonstration surfaces for EVAL cases.
+07,S07-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Human oversight protocol exists; controlled human studies were not run.
 08,S08-A01,Solution catalogue,docs/stages/stage_08/01_SOLUTION_OPTION_CATALOGUE.md,PRESENT_INTERNAL,Architecture Owner,Six solution options described
 08,S08-A02,Reference-architecture comparison,docs/stages/stage_08/03_REFERENCE_AND_MODEL_PROVIDER_COMPARISON.md,PRESENT_INTERNAL,Architecture Owner,Patterns compared with safety trade-offs
 08,S08-A03,PoC model and RAG results,docs/stages/stage_08/02_TECHNICAL_SPIKE_REPORT.md,PARTIAL,Architecture Owner,Deterministic spike results only; live model and RAG not selected
@@ -62,6 +97,12 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 08,S08-A06,Provider comparison,docs/stages/stage_08/03_REFERENCE_AND_MODEL_PROVIDER_COMPARISON.md,PARTIAL,Product Privacy Owners,Profiles only; no dated supplier diligence
 08,S08-A07,Preliminary ADRs,docs/stages/stage_08/07_PRELIMINARY_ADRS.md,PRESENT_INTERNAL,Architecture Owner,Reversible decisions recorded
 08,S08-A08,Selected solution,docs/stages/stage_08/09_G2_DECISION_RECORD.md,PRESENT_INTERNAL,Capstone Owner,Academic internal G2 only
+08,S08-N01,Merged participant preliminary ADRs,docs/stages/08_generate_test_and_select_options/preliminary-adrs.md,COMPLETED,Architecture Owner,Named-folder ADRs completed as reversible academic decisions
+08,S08-N02,Merged participant weighted trade-off matrix,docs/stages/08_generate_test_and_select_options/trade-off-matrix.md,COMPLETED,Architecture Owner,Named-folder trade-off matrix completed; no live provider selected
+08,S08-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Selected option keeps deterministic intelligence; live model and RAG not selected.
+08,S08-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Selected option keeps deterministic identity services; no model merge.
+08,S08-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Packaged vanilla Control Tower is the selected demo UI; React web_frontend is a prototype drop.
+08,S08-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,G2 academic selection recorded; no procurement or live-supplier diligence.
 09,S09-A01,Target data architecture,docs/stages/stage_09/01_INFORMATION_ARCHITECTURE.md,PRESENT_INTERNAL,Data Architecture Owner,Assertion and projection model
 09,S09-A02,Data contracts,docs/stages/stage_09/02_DATA_EVENT_AND_EVIDENCE_CONTRACTS.md,PRESENT_INTERNAL,Data Architecture Owner,Machine-readable schema links
 09,S09-A03,Semantic model,docs/stages/stage_09/01_INFORMATION_ARCHITECTURE.md,PRESENT_INTERNAL,Domain Data Owners,Typed IDs time authority and state
@@ -69,6 +110,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 09,S09-A05,Retrieval architecture,docs/stages/stage_10/03_AI_CONTEXT_AND_OUTPUT_DESIGN.md,CONDITIONAL_NOT_SELECTED,Architecture Owner,No RAG or vector retrieval selected
 09,S09-A06,Data ADRs,docs/stages/stage_13/02_FINAL_ADRS.md,PARTIAL,Architecture Owner,Data decisions dispersed; full ADR rationale limited
 09,S09-A07,Conditional ontology and graph-vector schemas,-,CONDITIONAL_NOT_SELECTED,Architecture Owner,Graph and vector store rejected for current POC
+09,S09-N01,Merged participant semantic model and ontology,docs/stages/09_design_information_architecture/semantic-model-and-ontology.md,COMPLETED,Domain Data Owners,Named-folder semantic model completed; graph/vector store still not selected
+09,S09-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Intelligence consumes typed assertions; graph/vector retrieval remains not selected.
+09,S09-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Semantic contracts keep patient identifiers typed and non-fungible across sources.
+09,S09-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,UI consumes evidence contracts; it does not invent graph/vector views.
+09,S09-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Evidence envelope and provenance chain are the audit contract.
 10,S10-A01,Target C4 Context Container Component views,docs/stages/stage_10/05_TARGET_C4_BASELINE_AND_AS_BUILT_DELTA.md,PRESENT_INTERNAL,Architecture Owner,All three target levels explicitly drawn
 10,S10-A02,AI and RAG architecture,docs/stages/stage_10/01_APPLICATION_AND_AI_ARCHITECTURE.md,CONDITIONAL_NOT_SELECTED,Architecture Owner,Bounded AI gateway present; RAG rejected
 10,S10-A03,Model-routing design,docs/stages/stage_10/01_APPLICATION_AND_AI_ARCHITECTURE.md,PARTIAL,AI Governance Owner,Off and fake only; live provider not selected
@@ -77,6 +123,13 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 10,S10-A06,Deployment topology,docs/stages/stage_10/01_APPLICATION_AND_AI_ARCHITECTURE.md,PARTIAL,Platform Owner,Local single-process only; production topology open
 10,S10-A07,Failure-mode design,docs/stages/stage_10/02_API_COMPONENT_AND_FAILURE_DESIGN.md,PRESENT_INTERNAL,Architecture Owner,Unknown outage and fallback states
 10,S10-A08,Architecture ADRs,docs/stages/stage_13/02_FINAL_ADRS.md,PARTIAL,Architecture Owner,Academic ADR decisions need fuller production rationale
+10,S10-N01,Merged participant target C4 and RAG design,docs/stages/10_design_ai_and_application_architecture/target-c4-and-rag-design.md,COMPLETED,Architecture Owner,Named-folder C4/RAG note completed; RAG remains not selected for the POC
+10,S10-N02,Merged participant target C4 container diagram,docs/stages/10_design_ai_and_application_architecture/target-c4-container-diagram.md,COMPLETED,Architecture Owner,Named-folder container view completed for the academic single-process app
+10,S10-N03,Merged participant target C4 context diagram,docs/stages/10_design_ai_and_application_architecture/target-c4-context-diagram.md,COMPLETED,Architecture Owner,Named-folder context view completed; not a field-validated enterprise topology
+10,S10-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/digital_twin.py,VERIFIED,AI Governance Owner,Digital twin and exception APIs are in the target C4; RAG remains rejected.
+10,S10-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,API exposes /reconcile/patient behind bearer read; Control Tower uses /api/governance/identity.
+10,S10-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,As-built Control Tower is the academic container UI; not an enterprise topology.
+10,S10-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,API authorization and audit append are in the as-built C4.
 11,S11-A01,Agent-suitability assessment,docs/stages/stage_11/02_AGENT_SUITABILITY_AND_STAGE_REVIEW.md,PRESENT_INTERNAL,AI Governance Owner,Multi-agent explicitly rejected
 11,S11-A02,Autonomy-level ADR,docs/stages/stage_13/02_FINAL_ADRS.md,PRESENT_INTERNAL,AI Governance Owner,Read-recommend only
 11,S11-A03,Agent responsibility map,docs/stages/stage_11/01_AGENTIC_ORCHESTRATION_DESIGN.md,PRESENT_INTERNAL,AI Governance Owner,One assistant and human/service responsibilities
@@ -89,6 +142,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 11,S11-A10,Handoff protocol,docs/stages/stage_11/01_AGENTIC_ORCHESTRATION_DESIGN.md,PRESENT_INTERNAL,Operations Owner,Assistant suggestion cannot execute handoff
 11,S11-A11,Termination and loop controls,docs/stages/stage_11/01_AGENTIC_ORCHESTRATION_DESIGN.md,PRESENT_INTERNAL,AI Governance Owner,One call schema check and deterministic fallback
 11,S11-A12,Human approval override and escalation matrix,docs/stages/stage_07/05_HUMAN_OVERSIGHT_AND_REVIEW_PROTOCOL.md,PARTIAL,Human Factors Owner,Policy defined; independent human study absent
+11,S11-N01,Merged participant agent bounded-autonomy design,docs/stages/11_design_agentic_and_multi_agent_orchestration/agent-bounded-autonomy.md,COMPLETED,AI Governance Owner,Named-folder bounded autonomy completed; multi-agent remains rejected
+11,S11-M01,AI intelligence (merged capability),src/fde_capstone/services/intelligence.py,VERIFIED,AI Governance Owner,Bounded ranking assistant only; no multi-agent loop or consequential tool.
+11,S11-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Assistant may describe a conflict; it cannot execute identity merge or handoff.
+11,S11-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Copilot/assistant UI is recommendation-only and off by default.
+11,S11-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Handoff and termination keep the assistant outside the authority path.
 12,S12-A01,Threat model,docs/stages/stage_12/01_THREAT_MODEL.md,PRESENT_INTERNAL,Security Owner,Twelve local POC threats
 12,S12-A02,Agentic attack-surface map,docs/stages/stage_12/01_THREAT_MODEL.md,PARTIAL,Security Owner,Single assistant surface; no standalone map
 12,S12-A03,Trust boundaries,docs/stages/stage_12/01_THREAT_MODEL.md,PRESENT_INTERNAL,Security Owner,Six boundaries listed
@@ -101,6 +159,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 12,S12-A10,Component register,docs/stages/stage_14/SBOM.json,PRESENT_INTERNAL,Platform Owner,Academic dependency manifest
 12,S12-A11,SBOM and AIBOM,docs/stages/stage_14/AIBOM.json,PRESENT_INTERNAL,Platform AI Owners,Unsigned academic SBOM and AIBOM
 12,S12-A12,Exit plan,docs/stages/stage_12/03_SUPPLIER_SBOM_AIBOM_AND_EXIT_PLAN.md,PRESENT_INTERNAL,Supplier Owner,AI-off portability and future credential revocation
+12,S12-N01,Merged participant threat model,docs/stages/12_design_security_guardrails_and_supplier_controls/threat-model.md,COMPLETED,Security Owner,Named-folder threat model completed for the local POC; not independent assurance
+12,S12-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Guardrails keep intelligence outside QA release; prompt/tool abuse is contained in academic tests.
+12,S12-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Security controls deny merge-on-conflict and require authorize() on reconcile routes.
+12,S12-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Governance pages are demo-scoped; no real operator accounts.
+12,S12-M04,Governance and audit (merged capability),docs/stages/12_design_security_guardrails_and_supplier_controls/threat-model.md,VERIFIED,AI Governance Owner,Threat model plus hash-chained AuditService; not independent security assurance.
 13,S13-A01,Final ADR register,docs/stages/stage_13/02_FINAL_ADRS.md,PARTIAL,Architecture Owner,Twelve concise academic decisions; full rationale limited
 13,S13-A02,Approved C4 baseline,docs/stages/stage_10/05_TARGET_C4_BASELINE_AND_AS_BUILT_DELTA.md,PARTIAL,Capstone Owner,Target views present; human approval pending
 13,S13-A03,Delivery specification,docs/stages/stage_13/01_BUILD_READY_SPECIFICATION.md,PRESENT_INTERNAL,Engineering Owner,Approved only for synthetic academic build
@@ -113,6 +176,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 13,S13-A10,Traceability matrix,requirements/TRACEABILITY_MATRIX.csv,PARTIAL,Product Owner,Cross-lifecycle CSV and Stage 13 product-to-demo trace exist; source-specific consolidation and owner review pending
 13,S13-A11,Backlog,docs/stages/stage_13/03_DELIVERY_BACKLOG_AND_TRACEABILITY.md,PRESENT_INTERNAL,Product Owner,POC increments listed
 13,S13-X01,Training-sequence PRD,docs/stages/stage_13/06_PRODUCT_REQUIREMENTS_DOCUMENT.md,PRESENT_INTERNAL,Capstone Owner,Additional training artifact; review pending
+13,S13-N01,Merged participant delivery specification,docs/stages/13_approve_adrs_and_delivery_specification/delivery-specification.md,COMPLETED,Engineering Owner,Named-folder delivery specification completed for synthetic academic build only
+13,S13-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Delivery spec FR coverage includes observe/recommend intelligence; Capstone Owner approval pending.
+13,S13-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,FR-02 identity reconciliation specified; academic build only.
+13,S13-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Delivery spec includes packaged src/fde_capstone/web; Capstone Owner review pending.
+13,S13-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Traceability and ADRs name governance controls; owner approval pending.
 14,S14-A01,Source and IaC,src/fde_capstone/application.py,PARTIAL,Engineering Platform Owners,Python app Docker and CI exist; no enterprise IaC
 14,S14-A02,Prompt and configuration registry,docs/stages/stage_14/assistant_config_registry.json,PRESENT_INTERNAL,AI Governance Owner,Versioned off/fake registry; live provider remains unselected
 14,S14-A03,Model and tool versions,docs/stages/stage_14/AIBOM.json,PARTIAL,AI Governance Owner,Fake adapter version only; live provider conditional
@@ -122,6 +190,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 14,S14-A07,Unit and integration tests,tests/e2e/test_full_journey.py,PRESENT_INTERNAL,Engineering Owner,Unit integration e2e suites
 14,S14-A08,CI and CD evidence,.github/workflows/ci.yml,PARTIAL,Platform Owner,CI only; no production CD
 14,S14-A09,As-built C4 views,docs/stages/stage_14/05_AS_BUILT_ARCHITECTURE.md,PARTIAL,Architecture Owner,Component flow only and no enterprise runtime
+14,S14-N01,Merged participant technical defect-resolution report,docs/stages/14_engineer/technical-defect-resolution-report.md,COMPLETED,Engineering Owner,Named-folder Stage 14 defect report completed including identity reconciliation
+14,S14-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exceptions_routes.py,VERIFIED,AI Governance Owner,Authenticated /intelligence/exceptions wired through authorize() and AuditService.
+14,S14-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,patient_resolver.py implemented against source_cases; never merge on conflict.
+14,S14-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Governance section integrated into vanilla web/ matching Control Tower styles; web_frontend remains prototype.
+14,S14-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,AuditService writes SHA-256 linked rows on storage.py; verify() fails on tamper.
 15,S15-A01,Evaluation harness,src/fde_capstone/evaluation.py,PRESENT_INTERNAL,TEVV Owner,Fifty-seven isolated structural probes
 15,S15-A02,Golden datasets,docs/stages/stage_07/evaluation_catalog.json,PARTIAL,TEVV Owner,Public seed specs and source fixtures; no full adjudicated gold truth
 15,S15-A03,Model and RAG results,-,CONDITIONAL_NOT_SELECTED,AI Governance Owner,No live model or RAG; fake boundary tests only
@@ -132,6 +205,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 15,S15-A08,Prompt-injection and tool-misuse tests,docs/stages/stage_15/02_RED_TEAM_AND_ADVERSARIAL_REPORT.md,PRESENT_INTERNAL,Security Owner,Fake malicious fixtures tested
 15,S15-A09,Assurance report,docs/stages/stage_15/01_TEVV_REPORT.md,PARTIAL,Independent Assurance Owner,Internal Codex review only; independent report absent
 15,S15-A10,Residual-risk acceptance,docs/stages/stage_15/03_RESIDUAL_RISK_DECISIONS.md,PARTIAL,Clinical Quality Owners,Restricted academic decision; real owner signoff unavailable
+15,S15-N01,Merged participant red-team results,docs/stages/15_evaluate_attack_and_independently_assure/red-team-results.md,COMPLETED,Security Owner,Named-folder red-team results completed internally; independent assurer absent
+15,S15-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Internal TEVV and red-team cover exception paths; independent assurance is still absent.
+15,S15-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Identity conflict paths are in the evaluation catalog; no adjudicated gold truth claimed.
+15,S15-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Packaged page is in the academic test surface; not independent UI assurance.
+15,S15-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Audit chain and governance APIs are internally tested; independent assurer absent.
 16,S16-A01,Operational RACI,docs/stages/stage_01/04_GOVERNANCE_RACI_AND_DECISION_RIGHTS.md,PARTIAL,Service Owner,Proposed governance not accepted service operations
 16,S16-A02,Agent and LLM telemetry,docs/stages/stage_16/01_SLOS_TELEMETRY_AND_ALERTS.md,PARTIAL,SRE AI Governance Owners,Fake and off metrics only; no live model
 16,S16-A03,Dashboards and alerts,docs/stages/stage_16/01_SLOS_TELEMETRY_AND_ALERTS.md,PARTIAL,SRE Owner,Design and local exercise only
@@ -142,6 +220,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 16,S16-A08,AI-system record,docs/stages/stage_12/06_ACADEMIC_AI_SYSTEM_CARD.md,PARTIAL,AI Governance Owner,Academic record exists; formal owner approval and external registration absent
 16,S16-A09,Technical documentation,docs/stages/stage_16/04_TRAINING_SOP_AND_EVIDENCE_INDEX.md,PARTIAL,Architecture Regulatory Owners,Dispersed source and technical docs; no controlled regulated pack
 16,S16-A10,Transparency and oversight records,docs/stages/stage_07/05_HUMAN_OVERSIGHT_AND_REVIEW_PROTOCOL.md,PARTIAL,Human Factors Owner,Protocol only; actual human records absent
+16,S16-N01,Merged participant operational runbook,docs/stages/16_prepare_operations_recovery_and_regulatory_evidence/operational-runbook.md,COMPLETED,Service Owner,Named-folder runbook completed for local academic operations only
+16,S16-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/predictive_logistics.py,VERIFIED,AI Governance Owner,Predictive logistics is advisory telemetry; not a live operations model.
+16,S16-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Runbooks treat identity conflict as human work; no automated COI repair.
+16,S16-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Runbook covers local Control Tower start; not a regulated operator console.
+16,S16-M04,Governance and audit (merged capability),docs/stages/16_prepare_operations_recovery_and_regulatory_evidence/operational-runbook.md,VERIFIED,AI Governance Owner,Operational runbook plus audit snapshot; not legally ready live service.
 17,S17-A01,Release manifest,docs/stages/stage_14/release_manifest.json,PRESENT_INTERNAL,Platform Owner,Academic source and catalog digests
 17,S17-A02,Deployment record,docs/stages/stage_17/01_RELEASE_DEPLOYMENT_AND_ADOPTION_RECORD.md,PARTIAL,Platform Owner,Local simulation not live deployment
 17,S17-A03,Pilot and canary results,docs/stages/stage_17/deployment_simulation_results.json,PARTIAL,Product SRE Owners,Disposable fixture canary only
@@ -150,6 +233,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 17,S17-A06,Adoption dashboard,-,EXTERNAL_REQUIRED,Product Operations Owner,No real users or adoption population
 17,S17-A07,Override and workaround logs,-,EXTERNAL_REQUIRED,Human Factors Owner,No real operator study or workflow
 17,S17-A08,Updated SOPs,-,EXTERNAL_REQUIRED,Operations Quality Owners,No organizational procedure adoption
+17,S17-N01,Merged participant pilot and rollout plan,docs/stages/17_deploy_progressively_and_integrate_adoption/pilot-and-rollout-plan.md,COMPLETED,Platform Owner,Named-folder rollout plan completed; not a live deployment record
+17,S17-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/predictive_logistics.py,VERIFIED,AI Governance Owner,Advisory delay predictions do not expand autonomy or authorize rollout.
+17,S17-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Rollout plan does not auto-reconcile live identifiers.
+17,S17-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Pilot plan uses the academic browser demo; no real-user adoption dashboard.
+17,S17-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Deployment record is local simulation; override logs from real operators are external.
 18,S18-A01,Operational dashboards,docs/stages/stage_18/02_DASHBOARD_AND_ALERT_SPECIFICATION.md,PARTIAL,SRE Owner,Specification not live dashboard
 18,S18-A02,Model tool and agent traces,docs/stages/stage_18/01_MONITORING_AND_RESILIENCE_REPORT.md,PARTIAL,SRE AI Governance Owners,Local audit metrics only; no live provider traces
 18,S18-A03,Inter-agent interaction logs,-,CONDITIONAL_NOT_SELECTED,AI Governance Owner,No multi-agent system
@@ -159,6 +247,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 18,S18-A07,Agent-loop alerts,docs/stages/stage_18/02_DASHBOARD_AND_ALERT_SPECIFICATION.md,CONDITIONAL_NOT_SELECTED,AI Governance Owner,One-call no-loop assistant; alert design only
 18,S18-A08,Chaos and recovery results,docs/stages/stage_18/monitoring_simulation_results.json,PARTIAL,SRE Owner,Local fixture exercise not representative outage
 18,S18-A09,Updated runbooks,docs/stages/stage_16/02_OPERATIONAL_RUNBOOKS.md,PARTIAL,Service Owner,No post-live-incident revision evidence
+18,S18-N01,Merged participant monitoring and observability plan,docs/stages/18_monitor_and_validate_operational_resilience/monitoring-and-observability-plan.md,COMPLETED,SRE Owner,Named-folder monitoring plan completed; not live operational dashboards
+18,S18-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/digital_twin.py,VERIFIED,AI Governance Owner,Digital twin metrics are local academic traces; not production drift monitoring.
+18,S18-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Monitoring records unresolved identity exceptions; it does not silently heal them.
+18,S18-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Operations dashboard is a local view; not live SRE observability.
+18,S18-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Local audit metrics only; no live provider traces or production drift population.
 19,S19-A01,Benefits-realisation report,docs/stages/stage_19/01_VALUE_REALIZATION_REPORT.md,PARTIAL,Product Analytics Owners,Technical feasibility only
 19,S19-A02,Before and after KPIs,-,EXTERNAL_REQUIRED,Analytics Owner,No real after cohort or baseline formulas
 19,S19-A03,Cost-to-value analysis,docs/stages/stage_08/05_TCO_AND_COST_MODEL.md,PARTIAL,Finance Owner,Scenario TCO not measured cost per successful outcome
@@ -168,6 +261,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 19,S19-A07,Executive SCQA paper,docs/stages/stage_19/02_EXECUTIVE_DECISION_STORY.md,PARTIAL,Product Owner,Decision story exists; full executive SCQA packaging limited
 19,S19-A08,C4 executive view,docs/stages/stage_10/05_TARGET_C4_BASELINE_AND_AS_BUILT_DELTA.md,PARTIAL,Architecture Owner,Technical C4 exists; executive simplified view absent
 19,S19-A09,Decision recommendation,docs/stages/stage_19/02_EXECUTIVE_DECISION_STORY.md,PRESENT_INTERNAL,Product Owner,Restrict/change funding choice
+19,S19-N01,Merged participant executive SCQA and roadmap,docs/stages/19_prove_value_and_tell_the_decision_story/executive-scqa-and-roadmap.md,COMPLETED,Product Owner,Named-folder executive story completed; benefits not claimed as observed
+19,S19-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Intelligence supports the decision story as technical feasibility not proven benefit.
+19,S19-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Value story credits explainable conflicts; not a cleaned production MPI.
+19,S19-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Executive lens is a demo persona; not a proven-benefit report.
+19,S19-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Decision recommendation is restrict/change; benefits remain unobserved.
 20,S20-A01,AIMS performance report,docs/stages/stage_20/01_AIMS_LIFECYCLE_CONTROL_REVIEW.md,PARTIAL,AI Governance Owner,Internal academic review not certified AIMS
 20,S20-A02,Audit findings,docs/stages/stage_20/02_INTERNAL_AUDIT_AND_CAPA.md,PARTIAL,Independent Assurance Owner,Internal Codex audit only
 20,S20-A03,CAPA register,docs/stages/stage_20/02_INTERNAL_AUDIT_AND_CAPA.md,PRESENT_INTERNAL,Capstone Owner,Seven open CAPAs and containment
@@ -175,6 +273,11 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 20,S20-A05,Control plan,docs/stages/stage_20/07_CONTROL_PLAN_AND_CHANGE_REASSESSMENT.md,PRESENT_INTERNAL,Service AI Governance Owners,Academic trigger response and owner table
 20,S20-A06,Updated impact risk C4 ADRs and evaluations,docs/stages/stage_20/07_CONTROL_PLAN_AND_CHANGE_REASSESSMENT.md,PARTIAL,Architecture AI Governance Owners,Change triggers defined; future reassessment evidence open
 20,S20-A07,Scale change restrict suspend retire decision,docs/stages/stage_20/04_G6_DECISION_RECORD.md,PRESENT_INTERNAL,Capstone Owner,Restrict and change for synthetic POC
+20,S20-N01,Merged participant AIMS performance report,docs/stages/20_evaluate_aims_and_decide_lifecycle_state/aims-performance-report.md,COMPLETED,AI Governance Owner,Named-folder AIMS review completed as internal academic restrict/change
+20,S20-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Restrict/change: intelligence stays off for real data until CAPAs close.
+20,S20-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Open identity CAPAs remain; restrict/change forbids real-data merge.
+20,S20-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,UI remains academic under restrict/change; no production operator rollout.
+20,S20-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Internal audit/CAPA register is the containment record; sponsor review pending.
 21,S21-A01,Retirement plan,docs/stages/stage_21/01_RETIREMENT_AND_ARCHIVE_RECORD.md,PARTIAL,Service Owner,Disposable local runtime only
 21,S21-A02,Notifications,-,CONDITIONAL_NOT_SELECTED,Service Owner,No real users or external service retired
 21,S21-A03,Access revocation,-,CONDITIONAL_NOT_SELECTED,Security Owner,No real enterprise access granted
@@ -184,3 +287,8 @@ stage,artifact_id,pdf_essential_artifact,canonical_path,status,accountable_role,
 21,S21-A07,Reusable ADR and C4 templates,docs/stages/stage_21/03_REUSABLE_IP_CATALOG.md,PARTIAL,Architecture Owner,Catalog lists assets; standalone templates absent
 21,S21-A08,Updated reference architectures,docs/stages/stage_21/03_REUSABLE_IP_CATALOG.md,PARTIAL,Architecture Owner,Reuse guidance not versioned reference architecture
 21,S21-A09,Eval and guardrail templates,docs/stages/stage_21/03_REUSABLE_IP_CATALOG.md,PARTIAL,TEVV Security Owners,Reusable patterns listed but not packaged as templates
+21,S21-N01,Merged participant 90-day reusable-IP roadmap,docs/stages/21_retire_and_capture_reusable_ip/90-day-roadmap.md,COMPLETED,Architecture Owner,Named-folder 90-day roadmap completed; not retirement of a live enterprise system
+21,S21-M01,AI intelligence (merged capability),src/fde_capstone/intelligence/exception_detector.py,VERIFIED,AI Governance Owner,Reusable exception patterns archived; local runtime intelligence is disposable.
+21,S21-M02,Identity reconciliation (merged capability),src/fde_capstone/reconciliation/patient_resolver.py,VERIFIED,Identity Owner,Reusable resolver pattern catalogued; disposable POC databases are not enterprise records.
+21,S21-M03,Control Tower webapp (merged capability),src/fde_capstone/web/index.html,COMPLETED,Engineering Owner,Frontend patterns are reusable IP; local demo UI is retired with the POC runtime.
+21,S21-M04,Governance and audit (merged capability),src/fde_capstone/services/audit_service.py,VERIFIED,AI Governance Owner,Local runtime and POC databases are disposed; no real enterprise access to revoke.

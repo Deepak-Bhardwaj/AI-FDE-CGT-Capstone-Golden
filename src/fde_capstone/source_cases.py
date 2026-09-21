@@ -29,6 +29,16 @@ PATIENT_TABLES = (
 )
 
 
+def read_source_rows(relative_path: str, baseline: Path | None = None) -> list[dict[str, str]]:
+    """Return raw CSV rows from the frozen source estate without adjudication."""
+    root = baseline if baseline is not None else BASELINE
+    path = root / relative_path
+    if not path.is_file():
+        raise FileNotFoundError(f"Frozen source fixture unavailable: {path}")
+    with path.open(newline="", encoding="utf-8-sig") as stream:
+        return [dict(row) for row in csv.DictReader(stream)]
+
+
 def _rows(path: Path, baseline: Path = BASELINE) -> list[dict]:
     if not path.is_file():
         raise FileNotFoundError(f"Frozen source fixture unavailable: {path}")

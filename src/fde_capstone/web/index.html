@@ -4,324 +4,443 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Synthetic CGT patient-to-batch orchestration capstone demonstration" />
-    <title>CGT Control Tower · FDE Final Capstone</title>
+    <title>CGT Control Tower · Vein-to-vein command</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body>
-    <div class="scope-banner" role="note">
-      <span class="scope-dot" aria-hidden="true"></span>
-      Synthetic academic demonstration · No real patient data · Not for clinical use
-    </div>
+    <div class="app" id="top">
+      <aside class="rail" id="app-rail" aria-label="Control Tower navigation">
+        <a class="rail-brand" href="#command" data-nav="command" aria-label="CGT Control Tower home">
+          <span class="helix-mark" aria-hidden="true">
+            <svg viewBox="0 0 36 36" role="img">
+              <defs>
+                <linearGradient id="helixGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#5cf0d2" />
+                  <stop offset="100%" stop-color="#7aa8ff" />
+                </linearGradient>
+              </defs>
+              <path d="M10 4c8 6 8 22 0 28" fill="none" stroke="url(#helixGrad)" stroke-width="2.2" />
+              <path d="M26 4c-8 6-8 22 0 28" fill="none" stroke="url(#helixGrad)" stroke-width="2.2" />
+              <path d="M12 10h12M11 18h14M12 26h12" stroke="#9be8d8" stroke-width="1.6" stroke-linecap="round" opacity=".85" />
+              <circle cx="12" cy="10" r="1.7" fill="#5cf0d2" />
+              <circle cx="24" cy="10" r="1.7" fill="#7aa8ff" />
+              <circle cx="11" cy="18" r="1.7" fill="#5cf0d2" />
+              <circle cx="25" cy="18" r="1.7" fill="#7aa8ff" />
+              <circle cx="12" cy="26" r="1.7" fill="#5cf0d2" />
+              <circle cx="24" cy="26" r="1.7" fill="#7aa8ff" />
+            </svg>
+          </span>
+          <span>
+            <strong>Control Tower</strong>
+            <small>CGT vein-to-vein</small>
+          </span>
+        </a>
 
-    <header class="topbar">
-      <a class="brand" href="#top" aria-label="CGT Control Tower home">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" role="img">
-            <path d="M16 3.5 27 9.8v12.4L16 28.5 5 22.2V9.8L16 3.5Z" />
-            <path d="M11 13.1h10M11 18.9h10M13.5 10.6v10.8M18.5 10.6v10.8" />
-          </svg>
-        </span>
-        <span>
-          <strong>CGT Control Tower</strong>
-          <small>Patient-to-Batch Orchestration</small>
-        </span>
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="#journey">Journey</a>
-        <a href="#roles">Roles</a>
-        <a href="#source-evidence">Source evidence</a>
-        <a href="#pocs">POCs</a>
-        <a href="#assurance">Assurance</a>
-        <a class="nav-api" href="/docs" target="_blank" rel="noreferrer">API</a>
-      </nav>
-    </header>
+        <nav class="rail-nav">
+          <p class="rail-group">Command</p>
+          <a class="nav-link is-active" href="#command" data-nav="command">
+            <span class="nav-ico" aria-hidden="true">▣</span>
+            Overview
+          </a>
+          <a class="nav-link" href="#roles" data-nav="roles">
+            <span class="nav-ico" aria-hidden="true">◈</span>
+            Role workspace
+          </a>
+          <a class="nav-link" href="#pocs" data-nav="pocs">
+            <span class="nav-ico" aria-hidden="true">▶</span>
+            Live demo
+          </a>
 
-    <main id="top">
-      <section class="hero section-shell">
-        <div class="hero-copy">
-          <div class="eyebrow"><span>21-stage FDE capstone</span><span>Evidence before status</span></div>
-          <h1>One controlled journey from <em>patient</em> to <em>batch</em>.</h1>
-          <p class="hero-lede">
-            Resolve identity safely, orchestrate manufacturing without duplicate effects,
-            and keep product release with the authorized Quality decision-maker.
-          </p>
-          <div class="hero-actions">
-            <button class="button button-primary" data-run-demo>
+          <p class="rail-group">Evidence</p>
+          <a class="nav-link" href="#source-evidence" data-nav="source-evidence">
+            <span class="nav-ico" aria-hidden="true">⬡</span>
+            Source cases
+          </a>
+          <a class="nav-link" href="#governance" data-nav="governance">
+            <span class="nav-ico" aria-hidden="true">◎</span>
+            Governance
+          </a>
+
+          <p class="rail-group">Assure</p>
+          <a class="nav-link" href="#assurance" data-nav="assurance">
+            <span class="nav-ico" aria-hidden="true">◇</span>
+            Boundaries
+          </a>
+          <a class="nav-link nav-external" href="/docs" target="_blank" rel="noreferrer">
+            <span class="nav-ico" aria-hidden="true">↗</span>
+            API console
+          </a>
+        </nav>
+
+        <div class="rail-foot">
+          <div class="env-chip"><span class="pulse-dot"></span> Synthetic · AI off</div>
+          <p>No real patient data. Not for clinical use.</p>
+          <span class="rail-version">v1.3 · FDE capstone</span>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="masthead">
+          <button class="rail-toggle" type="button" data-toggle-rail aria-controls="app-rail" aria-expanded="false">Menu</button>
+          <div class="mast-copy">
+            <span class="crumb" id="view-crumb">Command / Overview</span>
+            <strong id="view-title">Vein-to-vein command</strong>
+          </div>
+          <div class="mast-context" aria-label="Active demonstration context">
+            <div class="context-chip"><small>Patient</small><b>P-A</b></div>
+            <div class="context-chip"><small>Batch</small><b>BATCH-100</b></div>
+            <div class="context-chip context-live"><small>Audit</small><code id="hero-audit">Awaiting run</code></div>
+          </div>
+          <div class="mast-actions">
+            <label class="mode-field" for="ai-mode">Assistant</label>
+            <select id="ai-mode" aria-label="Assistant mode">
+              <option value="off">AI off · recommended</option>
+              <option value="fake">Bounded fake adapter</option>
+            </select>
+            <button class="button button-primary" data-run-demo type="button">
               <span class="button-icon" aria-hidden="true">▶</span>
-              Run end-to-end demo
+              Run journey
             </button>
-            <a class="button button-secondary" href="#pocs">Explore the controls</a>
           </div>
-          <p class="run-note">Runs locally with disposable synthetic state. AI remains off by default.</p>
-        </div>
+        </header>
 
-        <div class="hero-panel" aria-label="Current synthetic journey status">
-          <div class="panel-head">
-            <div>
-              <span class="panel-kicker">Active demonstration</span>
-              <h2>Journey P-A / BATCH-100</h2>
-            </div>
-            <span class="status-pill status-ready"><span></span> Demo ready</span>
-          </div>
-          <div class="hero-patient">
-            <div class="patient-avatar" aria-hidden="true">P</div>
-            <div>
-              <small>Synthetic patient key</small>
-              <strong>P-A</strong>
-            </div>
-            <div class="patient-divider"></div>
-            <div>
-              <small>Manufacturing batch</small>
-              <strong>BATCH-100</strong>
-            </div>
-          </div>
-          <div class="control-grid">
-            <div class="control-item">
-              <span class="control-icon control-teal">✓</span>
-              <span><small>Identity</small><strong>Human authorized</strong></span>
-            </div>
-            <div class="control-item">
-              <span class="control-icon control-blue">↻</span>
-              <span><small>Orchestration</small><strong>Idempotent</strong></span>
-            </div>
-            <div class="control-item">
-              <span class="control-icon control-violet">◇</span>
-              <span><small>Quality</small><strong>Authority retained</strong></span>
-            </div>
-            <div class="control-item">
-              <span class="control-icon control-amber">AI</span>
-              <span><small>Assistant</small><strong>Off by default</strong></span>
-            </div>
-          </div>
-          <div class="audit-line">
-            <span class="pulse-dot"></span>
-            <span>Tamper-evident audit chain active</span>
-            <code id="hero-audit">Awaiting run</code>
-          </div>
-        </div>
-      </section>
-
-      <section class="status-band" aria-label="Academic capstone evidence status">
-        <div><strong id="stage-count">21/21</strong><span>Stages documented</span></div>
-        <div><strong id="test-count">—</strong><span>Tests passed</span></div>
-        <div><strong id="evaluation-count">—</strong><span>Structural probes passed</span></div>
-        <div><strong id="requirement-count">—</strong><span>Requirements verified locally</span></div>
-        <div class="decision-stat"><strong>Restrict &amp; change</strong><span>Lifecycle decision</span></div>
-      </section>
-
-      <section class="section-shell section-block" id="journey">
-        <div class="section-heading">
-          <div>
-            <span class="section-number">01 / CONTROLLED JOURNEY</span>
-            <h2>Every transition requires evidence.</h2>
-          </div>
-          <p>Status labels do not create truth. The orchestrator records what is known, unknown, blocked and authorized.</p>
-        </div>
-
-        <div class="journey-track" id="journey-track">
-          <div class="journey-step" data-step="0"><span class="journey-index">01</span><i></i><strong>Enrollment</strong><small>Evidence registered</small></div>
-          <div class="journey-step" data-step="1"><span class="journey-index">02</span><i></i><strong>Identity</strong><small>Conflict resolved</small></div>
-          <div class="journey-step" data-step="2"><span class="journey-index">03</span><i></i><strong>Authorization</strong><small>Prerequisites met</small></div>
-          <div class="journey-step" data-step="3"><span class="journey-index">04</span><i></i><strong>Slot</strong><small>Effect reconciled</small></div>
-          <div class="journey-step" data-step="4"><span class="journey-index">05</span><i></i><strong>Manufacturing</strong><small>Batch complete</small></div>
-          <div class="journey-step" data-step="5"><span class="journey-index">06</span><i></i><strong>QC &amp; thermal</strong><small>Packet assembled</small></div>
-          <div class="journey-step" data-step="6"><span class="journey-index">07</span><i></i><strong>Quality release</strong><small>Human authorized</small></div>
-          <div class="journey-step" data-step="7"><span class="journey-index">08</span><i></i><strong>Ready</strong><small>Traceable outcome</small></div>
-        </div>
-      </section>
-
-      <section class="section-shell section-block" id="roles">
-        <div class="section-heading"><div><span class="section-number">02 / ROLE-BASED OPERATIONS</span><h2>One journey. Different responsibilities.</h2></div><p>The persona lens changes what the presenter focuses on; backend authority still follows explicit roles and scopes.</p></div>
-        <div class="role-workspace role-workspace-light">
-          <article class="role-lens-panel"><span class="panel-kicker">ROLE / PERSONA LENS</span><label for="role-lens">Demonstrate as</label>
-            <select id="role-lens"><option value="patient_operations">Patient Operations Coordinator</option><option value="identity_authority">Identity Authority</option><option value="logistics_planner">Logistics / Manufacturing Planner</option><option value="manufacturing">Manufacturing Operations</option><option value="lab_qc">Lab / Quality Control</option><option value="quality_authority">Quality Authority</option><option value="executive">Executive / Operations Viewer</option></select>
-            <h3 id="role-title">Patient Operations Coordinator</h3><p id="role-objective">Run the end-to-end demo to load this role's evidence, responsibilities and boundaries.</p>
-            <dl class="role-facts"><div><dt>Backend authority</dt><dd id="role-backend">COORDINATOR</dd></div><div><dt>Focus</dt><dd id="role-focus">End-to-end journey and owned exceptions</dd></div></dl>
-            <div class="role-boundaries"><div><small>Can</small><p id="role-can-do">Read journey state and coordinate exceptions.</p></div><div><small>Cannot</small><p id="role-cannot-do">Take another domain's consequential authority.</p></div></div>
-          </article>
-          <article class="journey-summary-panel"><span class="panel-kicker">AUTOMATED CROSS-DOMAIN SUMMARY</span>
-            <div class="summary-kpis"><div><small>Status</small><strong id="summary-status">Awaiting run</strong></div><div><small>Current blocker</small><strong id="summary-blocker">—</strong></div><div><small>Next owner</small><strong id="summary-next-owner">—</strong></div><div><small>Evidence</small><strong id="summary-evidence-count">—</strong></div></div>
-            <p class="summary-text" id="journey-summary-text">Run the journey. The deterministic orchestrator will combine patient, logistics, manufacturing, lab and Quality state into one evidence-backed summary.</p><div class="domain-summary-grid" id="domain-summary"></div>
-            <div class="assistant-explanation"><small>Assistant explanation</small><p id="assistant-explanation">AI is optional. With AI off, the deterministic summary remains fully available.</p></div>
-          </article>
-        </div>
-        <div class="automation-panel"><div><span class="panel-kicker">WORKFLOW AUTOMATION</span><h3>Automation coordinates; authority stays human where required.</h3></div><ol id="automation-trace"><li>Run the demo to show automated conflict detection, readiness gates, reconciliation, evidence assembly and journey summarization.</li></ol></div>
-        <div class="architecture-strip"><div><small>Structured operational truth</small><strong>Direct typed retrieval + deterministic projections</strong></div><div><small>RAG</small><strong>Optional for supporting SOP/email/deviation text only</strong></div><div><small>MCP</small><strong>Future enterprise integration option; not required in this POC</strong></div></div>
-      </section>
-
-      <section class="section-shell section-block source-explorer" id="source-evidence">
-        <div class="section-heading">
-          <div>
-            <span class="section-number">03 / FROZEN V2 EVIDENCE</span>
-            <h2>Inspect the original challenge cases.</h2>
-          </div>
-          <p>These are read-only source assertions from the supplied v2 package. They are not identity adjudication, Quality disposition or a migrated production journey.</p>
-        </div>
-        <div class="source-grid">
-          <article class="source-panel">
-            <h3>Six source evaluation cases</h3>
-            <p>Choose an original patient case to see the conflicting rows, exact file/row locators and what remains unproven.</p>
-            <div class="source-controls">
-              <label for="source-case">Source case</label>
-              <select id="source-case"></select>
-              <button class="button button-primary" id="show-source-case" type="button">Inspect case</button>
-            </div>
-            <div class="source-output" id="source-case-output" aria-live="polite">Select a case to inspect its frozen source evidence.</div>
-          </article>
-          <article class="source-panel" id="disruptions">
-            <h3>Ten disruption previews</h3>
-            <p>See the declared trigger, affected dependencies, owner and explicit uncertainty. A preview cannot commit a route, slot or clinical plan.</p>
-            <div class="source-controls">
-              <label for="source-inject">Disruption</label>
-              <select id="source-inject"></select>
-              <label for="representative-patient">Representative synthetic patient key</label>
-              <input id="representative-patient" value="P-00001" pattern="P-[0-9]{5}" maxlength="7" />
-              <button class="button button-primary" id="show-source-inject" type="button">Preview impact</button>
-            </div>
-            <div class="source-output" id="source-inject-output" aria-live="polite">Select a disruption to preview source-backed dependencies.</div>
-          </article>
-        </div>
-      </section>
-
-      <section class="demo-section" id="pocs">
-        <div class="section-shell">
-          <div class="section-heading section-heading-light">
-            <div>
-              <span class="section-number">04 / INTEGRATED DEMONSTRATION</span>
-              <h2>Three hard problems. One controlled runtime.</h2>
-            </div>
-            <div class="demo-control">
-              <label for="ai-mode">Assistant mode</label>
-              <select id="ai-mode" aria-label="Assistant mode">
-                <option value="off">AI off · recommended</option>
-                <option value="fake">Bounded fake adapter</option>
-              </select>
-              <button class="button button-bright" data-run-demo>Run demo</button>
-            </div>
-          </div>
-
-          <div class="demo-progress" aria-live="polite">
-            <span id="run-state">Ready to run the synthetic journey</span>
-            <div class="progress-track"><i id="progress-fill"></i></div>
-          </div>
-
-          <div class="poc-grid">
-            <article class="poc-card" id="poc-1">
-              <div class="poc-topline"><span class="poc-number">POC 01</span><span class="result-badge result-idle" id="poc-1-badge">Not run</span></div>
-              <div class="poc-icon poc-icon-teal" aria-hidden="true">ID</div>
-              <h3>Identity &amp; readiness</h3>
-              <p>Conflicting MRN and DOB assertions become an owned case—not an invented patient link.</p>
-              <dl class="result-list">
-                <div><dt>Identity decision</dt><dd id="identity-decision">—</dd></div>
-                <div><dt>Collection readiness</dt><dd id="identity-readiness">—</dd></div>
-                <div><dt>Evidence cited</dt><dd id="identity-evidence">—</dd></div>
-              </dl>
-            </article>
-
-            <article class="poc-card" id="poc-2">
-              <div class="poc-topline"><span class="poc-number">POC 02</span><span class="result-badge result-idle" id="poc-2-badge">Not run</span></div>
-              <div class="poc-icon poc-icon-blue" aria-hidden="true">↻</div>
-              <h3>Safe slot orchestration</h3>
-              <p>A timeout becomes an unknown outcome, is reconciled, and is never dispatched twice.</p>
-              <dl class="result-list">
-                <div><dt>Initial command</dt><dd id="slot-initial">—</dd></div>
-                <div><dt>After reconciliation</dt><dd id="slot-reconciled">—</dd></div>
-                <div><dt>Duplicate dispatch</dt><dd id="slot-replay">—</dd></div>
-              </dl>
-            </article>
-
-            <article class="poc-card" id="poc-3">
-              <div class="poc-topline"><span class="poc-number">POC 03</span><span class="result-badge result-idle" id="poc-3-badge">Not run</span></div>
-              <div class="poc-icon poc-icon-violet" aria-hidden="true">QA</div>
-              <h3>Quality release</h3>
-              <p>MES, QC, deviation and thermal evidence inform release; only Quality can authorize it.</p>
-              <dl class="result-list">
-                <div><dt>Before authority</dt><dd id="quality-before">—</dd></div>
-                <div><dt>Quality decision</dt><dd id="quality-release">—</dd></div>
-                <div><dt>Final outcome</dt><dd id="quality-after">—</dd></div>
-              </dl>
-            </article>
-          </div>
-
-          <div class="evidence-console" id="evidence-console">
-            <div class="console-head">
-              <div><span class="console-light red"></span><span class="console-light amber"></span><span class="console-light green"></span></div>
-              <strong>Evidence &amp; control record</strong>
-              <span id="run-scope">SYNTHETIC</span>
-            </div>
-            <div class="console-body">
-              <div class="console-empty" id="console-empty">
-                Run the demonstration to see cited evidence, audit integrity and runtime metrics.
+        <div class="viewport">
+          <section class="view is-active" id="command" data-view="command">
+            <div class="page-intro">
+              <div>
+                <h1>One controlled journey from <em>patient</em> to <em>batch</em>.</h1>
+                <p class="lede">Identity is authorized by a human, slots never double-dispatch, and product release stays with Quality. Status labels do not create truth.</p>
               </div>
-              <div class="console-results" id="console-results" hidden>
+              <div class="intro-actions">
+                <button class="button button-primary" data-run-demo type="button">
+                  <span class="button-icon" aria-hidden="true">▶</span>
+                  Run end-to-end demo
+                </button>
+                <p class="run-note">Isolated synthetic runtime. AI remains off unless you change the command bar.</p>
+              </div>
+            </div>
+
+            <div class="telemetry" aria-label="Academic capstone evidence status">
+              <div><small>Stages</small><strong id="stage-count">21/21</strong></div>
+              <div><small>Tests passed</small><strong id="test-count">—</strong></div>
+              <div><small>Structural probes</small><strong id="evaluation-count">—</strong></div>
+              <div><small>Requirements</small><strong id="requirement-count">—</strong></div>
+              <div class="telemetry-decision"><small>Lifecycle</small><strong>Restrict &amp; change</strong></div>
+            </div>
+
+            <div class="command-grid">
+              <article class="glass case-panel" aria-label="Current synthetic journey status">
+                <div class="panel-head">
+                  <div>
+                    <span class="kicker">Active cassette</span>
+                    <h2>Journey P-A / BATCH-100</h2>
+                  </div>
+                  <span class="status-pill status-ready"><span></span> Demo ready</span>
+                </div>
+                <div class="hero-patient">
+                  <div class="patient-avatar" aria-hidden="true">P</div>
+                  <div><small>Synthetic patient key</small><strong>P-A</strong></div>
+                  <div class="patient-divider"></div>
+                  <div><small>Manufacturing batch</small><strong>BATCH-100</strong></div>
+                </div>
+                <div class="control-grid">
+                  <div class="control-item"><span class="control-icon control-teal">✓</span><span><small>Identity</small><strong>Human authorized</strong></span></div>
+                  <div class="control-item"><span class="control-icon control-blue">↻</span><span><small>Orchestration</small><strong>Idempotent</strong></span></div>
+                  <div class="control-item"><span class="control-icon control-violet">◇</span><span><small>Quality</small><strong>Authority retained</strong></span></div>
+                  <div class="control-item"><span class="control-icon control-amber">AI</span><span><small>Assistant</small><strong>Off by default</strong></span></div>
+                </div>
+                <div class="audit-line">
+                  <span class="pulse-dot"></span>
+                  <span>Tamper-evident audit chain armed</span>
+                </div>
+              </article>
+
+              <article class="glass pipeline-panel" id="journey">
+                <div class="panel-head">
+                  <div>
+                    <span class="kicker">01 / Vein-to-vein track</span>
+                    <h2>Every transition requires evidence.</h2>
+                  </div>
+                </div>
+                <p class="panel-copy">The orchestrator records what is known, unknown, blocked and authorized. Completing a demo lights each gate.</p>
+                <div class="journey-track" id="journey-track">
+                  <div class="journey-step" data-step="0"><span class="journey-index">01</span><i></i><strong>Enrollment</strong><small>Evidence registered</small></div>
+                  <div class="journey-step" data-step="1"><span class="journey-index">02</span><i></i><strong>Identity</strong><small>Conflict resolved</small></div>
+                  <div class="journey-step" data-step="2"><span class="journey-index">03</span><i></i><strong>Authorization</strong><small>Prerequisites met</small></div>
+                  <div class="journey-step" data-step="3"><span class="journey-index">04</span><i></i><strong>Slot</strong><small>Effect reconciled</small></div>
+                  <div class="journey-step" data-step="4"><span class="journey-index">05</span><i></i><strong>Manufacturing</strong><small>Batch complete</small></div>
+                  <div class="journey-step" data-step="5"><span class="journey-index">06</span><i></i><strong>QC &amp; thermal</strong><small>Packet assembled</small></div>
+                  <div class="journey-step" data-step="6"><span class="journey-index">07</span><i></i><strong>Quality release</strong><small>Human authorized</small></div>
+                  <div class="journey-step" data-step="7"><span class="journey-index">08</span><i></i><strong>Ready</strong><small>Traceable outcome</small></div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="view" id="roles" data-view="roles">
+            <div class="page-intro">
+              <div>
+                <span class="kicker">02 / Role-based operations</span>
+                <h1>One journey. Different responsibilities.</h1>
+                <p class="lede">The persona lens changes what the presenter focuses on; backend authority still follows explicit roles and scopes.</p>
+              </div>
+            </div>
+            <div class="role-workspace">
+              <article class="glass role-lens-panel">
+                <span class="kicker">Role / persona lens</span>
+                <label for="role-lens">Demonstrate as</label>
+                <select id="role-lens">
+                  <option value="patient_operations">Patient Operations Coordinator</option>
+                  <option value="identity_authority">Identity Authority</option>
+                  <option value="logistics_planner">Logistics / Manufacturing Planner</option>
+                  <option value="manufacturing">Manufacturing Operations</option>
+                  <option value="lab_qc">Lab / Quality Control</option>
+                  <option value="quality_authority">Quality Authority</option>
+                  <option value="executive">Executive / Operations Viewer</option>
+                </select>
+                <h3 id="role-title">Patient Operations Coordinator</h3>
+                <p id="role-objective">Run the end-to-end demo to load this role's evidence, responsibilities and boundaries.</p>
+                <dl class="role-facts">
+                  <div><dt>Backend authority</dt><dd id="role-backend">COORDINATOR</dd></div>
+                  <div><dt>Focus</dt><dd id="role-focus">End-to-end journey and owned exceptions</dd></div>
+                </dl>
+                <div class="role-boundaries">
+                  <div><small>Can</small><p id="role-can-do">Read journey state and coordinate exceptions.</p></div>
+                  <div><small>Cannot</small><p id="role-cannot-do">Take another domain's consequential authority.</p></div>
+                </div>
+              </article>
+              <article class="glass journey-summary-panel">
+                <span class="kicker">Automated cross-domain summary</span>
+                <div class="summary-kpis">
+                  <div><small>Status</small><strong id="summary-status">Awaiting run</strong></div>
+                  <div><small>Current blocker</small><strong id="summary-blocker">—</strong></div>
+                  <div><small>Next owner</small><strong id="summary-next-owner">—</strong></div>
+                  <div><small>Evidence</small><strong id="summary-evidence-count">—</strong></div>
+                </div>
+                <p class="summary-text" id="journey-summary-text">Run the journey. The deterministic orchestrator will combine patient, logistics, manufacturing, lab and Quality state into one evidence-backed summary.</p>
+                <div class="domain-summary-grid" id="domain-summary"></div>
+                <div class="assistant-explanation">
+                  <small>Assistant explanation</small>
+                  <p id="assistant-explanation">AI is optional. With AI off, the deterministic summary remains fully available.</p>
+                </div>
+              </article>
+            </div>
+            <div class="automation-panel">
+              <div><span class="kicker">Workflow automation</span><h3>Automation coordinates; authority stays human where required.</h3></div>
+              <ol id="automation-trace">
+                <li>Run the demo to show automated conflict detection, readiness gates, reconciliation, evidence assembly and journey summarization.</li>
+              </ol>
+            </div>
+            <div class="architecture-strip">
+              <div><small>Structured operational truth</small><strong>Direct typed retrieval + deterministic projections</strong></div>
+              <div><small>RAG</small><strong>Optional for supporting SOP/email/deviation text only</strong></div>
+              <div><small>MCP</small><strong>Future enterprise integration option; not required in this POC</strong></div>
+            </div>
+          </section>
+
+          <section class="view" id="source-evidence" data-view="source-evidence">
+            <div class="page-intro">
+              <div>
+                <span class="kicker">03 / Frozen v2 evidence</span>
+                <h1>Inspect the original challenge cases.</h1>
+                <p class="lede">These are read-only source assertions from the supplied v2 package. They are not identity adjudication, Quality disposition or a migrated production journey.</p>
+              </div>
+            </div>
+            <div class="source-grid">
+              <article class="glass source-panel">
+                <h3>Six source evaluation cases</h3>
+                <p>Choose an original patient case to see the conflicting rows, exact file/row locators and what remains unproven.</p>
+                <div class="source-controls">
+                  <label for="source-case">Source case</label>
+                  <select id="source-case"></select>
+                  <button class="button button-primary" id="show-source-case" type="button">Inspect case</button>
+                </div>
+                <div class="source-output" id="source-case-output" aria-live="polite">Select a case to inspect its frozen source evidence.</div>
+              </article>
+              <article class="glass source-panel" id="disruptions">
+                <h3>Ten disruption previews</h3>
+                <p>See the declared trigger, affected dependencies, owner and explicit uncertainty. A preview cannot commit a route, slot or clinical plan.</p>
+                <div class="source-controls">
+                  <label for="source-inject">Disruption</label>
+                  <select id="source-inject"></select>
+                  <label for="representative-patient">Representative synthetic patient key</label>
+                  <input id="representative-patient" value="P-00001" pattern="P-[0-9]{5}" maxlength="7" />
+                  <button class="button button-primary" id="show-source-inject" type="button">Preview impact</button>
+                </div>
+                <div class="source-output" id="source-inject-output" aria-live="polite">Select a disruption to preview source-backed dependencies.</div>
+              </article>
+            </div>
+          </section>
+
+          <section class="view" id="governance" data-view="governance">
+            <div class="page-intro">
+              <div>
+                <span class="kicker">04 / Governed operations</span>
+                <h1>Identity, exceptions and a hash-chained audit.</h1>
+                <p class="lede">These views observe and recommend. They do not merge patients, close deviations or release product.</p>
+              </div>
+            </div>
+            <div class="governance-kpis" aria-label="Governance snapshot">
+              <div><small>Identity lookup</small><strong id="gov-identity-key">P-00001</strong><span id="gov-identity-flag">Awaiting inspect</span></div>
+              <div><small>Open exceptions shown</small><strong id="gov-exception-count">—</strong><span>Human review required</span></div>
+              <div><small>Audit chain</small><strong id="gov-audit-valid">—</strong><span id="gov-audit-count">No live rows yet</span></div>
+            </div>
+            <div class="source-grid governance-grid">
+              <article class="glass source-panel">
+                <h3>Patient identity evidence</h3>
+                <p>Reconcile CRM, clinical and orchestration identifiers. Conflicting DOB or MRN stays unresolved; nothing is merged.</p>
+                <div class="source-controls identity-controls">
+                  <label for="identity-orchestration">Orchestration patient key</label>
+                  <input id="identity-orchestration" value="P-00001" maxlength="16" />
+                  <label for="identity-mrn">MRN (optional)</label>
+                  <input id="identity-mrn" placeholder="MRN-741568" maxlength="32" />
+                  <button class="button button-primary" id="inspect-identity" type="button">Inspect identity</button>
+                </div>
+                <div class="source-output" id="identity-output" aria-live="polite">Inspect a synthetic patient to see the evidence pack, confidence and HITL flag.</div>
+              </article>
+              <article class="glass source-panel">
+                <h3>Cross-system exception queue</h3>
+                <p>Ranked contradictions: MES vs QMS, slot conflicts, impossible shipment times, consent and duplicate MRNs.</p>
+                <div class="source-controls">
+                  <label for="exception-patient">Filter by patient key (optional)</label>
+                  <input id="exception-patient" placeholder="P-00001" maxlength="16" />
+                  <button class="button button-primary" id="load-exceptions" type="button">Load exceptions</button>
+                </div>
+                <div class="source-output" id="exception-output" aria-live="polite">Load the queue to show exception type, severity and the HITL recommendation.</div>
+              </article>
+            </div>
+            <article class="glass source-panel audit-panel">
+              <div class="audit-panel-head">
                 <div>
-                  <small>Evidence references</small>
-                  <div class="evidence-chips" id="evidence-chips"></div>
+                  <h3>Tamper-evident audit trail</h3>
+                  <p>Each row is SHA-256 chained to the previous record in <code>storage.Database</code>. An edited outcome fails verification.</p>
                 </div>
-                <div class="console-summary">
-                  <div><small>Audit chain</small><strong id="audit-result">—</strong></div>
-                  <div><small>AI boundary</small><strong id="assistant-result">—</strong></div>
-                  <div><small>Control metrics</small><strong id="metric-result">—</strong></div>
-                  <div><small>State digest</small><code id="state-digest">—</code></div>
+                <button class="button button-secondary" id="load-audit" type="button">Refresh live ledger</button>
+              </div>
+              <div class="source-output" id="audit-output" aria-live="polite">Run the end-to-end demo or refresh the live ledger to show hash-chained access and decision records.</div>
+            </article>
+          </section>
+
+          <section class="view view-dark" id="pocs" data-view="pocs">
+            <div class="page-intro">
+              <div>
+                <span class="kicker">05 / Integrated demonstration</span>
+                <h1>Three hard problems. One controlled runtime.</h1>
+                <p class="lede">Watch identity, slot reconciliation and Quality release execute in sequence. Assistant mode is set in the command bar.</p>
+              </div>
+              <button class="button button-bright" data-run-demo type="button">Run demo</button>
+            </div>
+            <div class="demo-progress" aria-live="polite">
+              <span id="run-state">Ready to run the synthetic journey</span>
+              <div class="progress-track"><i id="progress-fill"></i></div>
+            </div>
+            <div class="poc-grid">
+              <article class="poc-card" id="poc-1">
+                <div class="poc-topline"><span class="poc-number">POC 01</span><span class="result-badge result-idle" id="poc-1-badge">Not run</span></div>
+                <div class="poc-icon poc-icon-teal" aria-hidden="true">ID</div>
+                <h3>Identity &amp; readiness</h3>
+                <p>Conflicting MRN and DOB assertions become an owned case—not an invented patient link.</p>
+                <dl class="result-list">
+                  <div><dt>Identity decision</dt><dd id="identity-decision">—</dd></div>
+                  <div><dt>Collection readiness</dt><dd id="identity-readiness">—</dd></div>
+                  <div><dt>Evidence cited</dt><dd id="identity-evidence">—</dd></div>
+                </dl>
+              </article>
+              <article class="poc-card" id="poc-2">
+                <div class="poc-topline"><span class="poc-number">POC 02</span><span class="result-badge result-idle" id="poc-2-badge">Not run</span></div>
+                <div class="poc-icon poc-icon-blue" aria-hidden="true">↻</div>
+                <h3>Safe slot orchestration</h3>
+                <p>A timeout becomes an unknown outcome, is reconciled, and is never dispatched twice.</p>
+                <dl class="result-list">
+                  <div><dt>Initial command</dt><dd id="slot-initial">—</dd></div>
+                  <div><dt>After reconciliation</dt><dd id="slot-reconciled">—</dd></div>
+                  <div><dt>Duplicate dispatch</dt><dd id="slot-replay">—</dd></div>
+                </dl>
+              </article>
+              <article class="poc-card" id="poc-3">
+                <div class="poc-topline"><span class="poc-number">POC 03</span><span class="result-badge result-idle" id="poc-3-badge">Not run</span></div>
+                <div class="poc-icon poc-icon-violet" aria-hidden="true">QA</div>
+                <h3>Quality release</h3>
+                <p>MES, QC, deviation and thermal evidence inform release; only Quality can authorize it.</p>
+                <dl class="result-list">
+                  <div><dt>Before authority</dt><dd id="quality-before">—</dd></div>
+                  <div><dt>Quality decision</dt><dd id="quality-release">—</dd></div>
+                  <div><dt>Final outcome</dt><dd id="quality-after">—</dd></div>
+                </dl>
+              </article>
+            </div>
+            <div class="evidence-console" id="evidence-console">
+              <div class="console-head">
+                <div><span class="console-light red"></span><span class="console-light amber"></span><span class="console-light green"></span></div>
+                <strong>Evidence &amp; control record</strong>
+                <span id="run-scope">SYNTHETIC</span>
+              </div>
+              <div class="console-body">
+                <div class="console-empty" id="console-empty">Run the demonstration to see cited evidence, audit integrity and runtime metrics.</div>
+                <div class="console-results" id="console-results" hidden>
+                  <div>
+                    <small>Evidence references</small>
+                    <div class="evidence-chips" id="evidence-chips"></div>
+                  </div>
+                  <div class="console-summary">
+                    <div><small>Audit chain</small><strong id="audit-result">—</strong></div>
+                    <div><small>AI boundary</small><strong id="assistant-result">—</strong></div>
+                    <div><small>Control metrics</small><strong id="metric-result">—</strong></div>
+                    <div><small>State digest</small><code id="state-digest">—</code></div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section class="section-shell section-block" id="assurance">
-        <div class="section-heading">
-          <div>
-            <span class="section-number">05 / ASSURANCE &amp; BOUNDARIES</span>
-            <h2>Confidence without overclaiming.</h2>
-          </div>
-          <p>The capstone proves technical control feasibility on synthetic data. It does not claim clinical, regulatory or production validation.</p>
-        </div>
-
-        <div class="assurance-layout">
-          <div class="assurance-scorecard">
-            <div class="score-ring" id="requirement-score-ring" aria-label="29 of 31 requirements internally verified">
-              <svg viewBox="0 0 120 120" aria-hidden="true">
-                <circle class="ring-base" cx="60" cy="60" r="51"></circle>
-                <circle class="ring-value" cx="60" cy="60" r="51"></circle>
-              </svg>
-              <span><strong id="score-requirement-verified">29</strong><small id="score-requirement-total">of 31</small></span>
+          <section class="view" id="assurance" data-view="assurance">
+            <div class="page-intro">
+              <div>
+                <span class="kicker">06 / Assurance &amp; boundaries</span>
+                <h1>Confidence without overclaiming.</h1>
+                <p class="lede">The capstone proves technical control feasibility on synthetic data. It does not claim clinical, regulatory or production validation.</p>
+              </div>
             </div>
-            <div>
-              <span class="score-label">Internal POC requirements verified</span>
-              <p>Two controlled human-factor studies remain inconclusive and require external evidence.</p>
+            <div class="assurance-layout">
+              <div class="glass assurance-scorecard">
+                <div class="score-ring" id="requirement-score-ring" aria-label="29 of 31 requirements internally verified">
+                  <svg viewBox="0 0 120 120" aria-hidden="true">
+                    <circle class="ring-base" cx="60" cy="60" r="51"></circle>
+                    <circle class="ring-value" cx="60" cy="60" r="51"></circle>
+                  </svg>
+                  <span><strong id="score-requirement-verified">29</strong><small id="score-requirement-total">of 31</small></span>
+                </div>
+                <div>
+                  <span class="score-label">Internal POC requirements verified</span>
+                  <p>Two controlled human-factor studies remain inconclusive and require external evidence.</p>
+                </div>
+              </div>
+              <div class="boundary-grid">
+                <article>
+                  <span class="boundary-check">✓</span>
+                  <h3>Demonstrated</h3>
+                  <p>Evidence lineage, explicit unknowns, human authority, safe retries, audit integrity and recovery.</p>
+                </article>
+                <article>
+                  <span class="boundary-lock">!</span>
+                  <h3>Restricted</h3>
+                  <p>Real patient data, consequential AI, clinical decisions, automated release and production integrations.</p>
+                </article>
+              </div>
             </div>
-          </div>
-
-          <div class="boundary-grid">
-            <article>
-              <span class="boundary-check">✓</span>
-              <h3>Demonstrated</h3>
-              <p>Evidence lineage, explicit unknowns, human authority, safe retries, audit integrity and recovery.</p>
-            </article>
-            <article>
-              <span class="boundary-lock">!</span>
-              <h3>Restricted</h3>
-              <p>Real patient data, consequential AI, clinical decisions, automated release and production integrations.</p>
-            </article>
-          </div>
+            <div class="decision-banner">
+              <div><span>G6 lifecycle decision</span><strong>Restrict and change</strong></div>
+              <p>Academic POC accepted. AI stays off and real-world use remains prohibited until the seven CAPAs are closed.</p>
+              <a href="/docs" target="_blank" rel="noreferrer">Inspect API <span>↗</span></a>
+            </div>
+          </section>
         </div>
-
-        <div class="decision-banner">
-          <div><span>G6 LIFECYCLE DECISION</span><strong>RESTRICT AND CHANGE</strong></div>
-          <p>Academic POC accepted. AI stays off and real-world use remains prohibited until the seven CAPAs are closed.</p>
-          <a href="/docs" target="_blank" rel="noreferrer">Inspect API <span>↗</span></a>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <div class="footer-brand"><span class="brand-mark small" aria-hidden="true"></span><strong>FDE Final Capstone</strong></div>
-      <p>Cell &amp; Gene Therapy · Patient-to-Batch Orchestration</p>
-      <span>v1.2 · Role-based demo + automated journey summary</span>
-    </footer>
+      </div>
+    </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="/assets/app.js" defer></script>
