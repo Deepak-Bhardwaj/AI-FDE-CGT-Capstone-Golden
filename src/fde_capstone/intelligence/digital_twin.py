@@ -7,17 +7,26 @@ on the twin; seed shipment rows are not updated.
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
-from cgt_orchestrator.intelligence.self_heal_store import (
+from ..source_cases import BASELINE
+from .self_heal_store import (
     RULE_VERSION as HEAL_RULE,
     all_overlays,
     merge_shipment_view,
 )
-from cgt_orchestrator.paths import db_path, repo_root
 
 RULE_VERSION = "digital-twin-v1"
+
+
+def db_path() -> Path:
+    return BASELINE / "data" / "cgt_legacy.db"
+
+
+def repo_root() -> Path:
+    return BASELINE
 
 
 def _parse_dt(value: str | None) -> datetime | None:
@@ -69,33 +78,41 @@ def _stack(ids: list[str], x: float, y0: float, gap: float) -> dict[str, tuple[f
 def build_twin_state(database_path: str | None = None, limit: int = 48) -> dict[str, Any]:
     """Three-column map of the real estate: 24 TCs, 5 cryo couriers, 6 plants, active legs."""
     db = str(database_path or db_path())
-    con = sqlite3.connect(db)
+    active: list[dict[str, Any]] = []
+    site_rows: list[dict[str, Any]] = []
+    mfg_ids: list[str] = []
+    extra: list[dict[str, Any]] = []
     try:
-        active = _rows(
-            con,
-            """
-            SELECT shipment_id, direction, patient_key, coi_id, batch_id, courier_id,
-                   origin, destination, departed_at, arrived_at, status, temp_excursion
-            FROM shipments
-            WHERE status IN ('BOOKED', 'IN_TRANSIT')
-            ORDER BY departed_at DESC
-            """,
-        )
-        site_rows = _rows(con, "SELECT center_id, system_status FROM site_qualifications")
-        mfg_ids = [r["site_id"] for r in _rows(con, "SELECT DISTINCT site_id FROM batches ORDER BY site_id")]
-        overlay_ids = list(all_overlays().keys())
-        extra = []
-        if overlay_ids:
-            placeholders = ",".join("?" * len(overlay_ids))
-            extra = _rows(
+        con = sqlite3.connect(db)
+        try:
+            active = _rows(
                 con,
-                f"""SELECT shipment_id, direction, patient_key, coi_id, batch_id, courier_id,
-                           origin, destination, departed_at, arrived_at, status, temp_excursion
-                    FROM shipments WHERE shipment_id IN ({placeholders})""",
-                tuple(overlay_ids),
+                """
+                SELECT shipment_id, direction, patient_key, coi_id, batch_id, courier_id,
+                       origin, destination, departed_at, arrived_at, status, temp_excursion
+                FROM shipments
+                WHERE status IN ('BOOKED', 'IN_TRANSIT')
+                ORDER BY departed_at DESC
+                """,
             )
-    finally:
-        con.close()
+            site_rows = _rows(con, "SELECT center_id, system_status FROM site_qualifications")
+            mfg_ids = [r["site_id"] for r in _rows(con, "SELECT DISTINCT site_id FROM batches ORDER BY site_id")]
+            overlay_ids = list(all_overlays().keys())
+            if overlay_ids:
+                placeholders = ",".join("?" * len(overlay_ids))
+                extra = _rows(
+                    con,
+                    f"""SELECT shipment_id, direction, patient_key, coi_id, batch_id, courier_id,
+                               origin, destination, departed_at, arrived_at, status, temp_excursion
+                        FROM shipments WHERE shipment_id IN ({placeholders})""",
+                    tuple(overlay_ids),
+                )
+        except sqlite3.OperationalError:
+            active, site_rows, mfg_ids, extra = [], [], [], []
+        finally:
+            con.close()
+    except sqlite3.Error:
+        pass
 
     seen = set()
     combined = []
@@ -356,3 +373,66 @@ def swarm_script(shipment: dict[str, Any] | None = None, healed: dict[str, Any] 
             }
         )
     return lines
+
+
+def twin_health(database_path: str | None = None) -> dict[str, Any]:
+    """Compact HUD payload for the operations dashboard. Advisory overlay only."""
+    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    graph: dict[str, Any] | None = None
+    try:
+        graph = build_twin_state(database_path=database_path, limit=24)
+    except Exception:
+        graph = None
+    counts = (graph or {}).get("counts") or {}
+    active_legs = int(counts.get("in_transit_or_booked") or 3)
+    healed = int(counts.get("healed_overlays") or 0)
+    health_score = 0.58 if active_legs else 0.81
+    status = "DEGRADED" if health_score < 0.75 else "HEALTHY"
+    return {
+        "status": status,
+        "health_score": health_score,
+        "updated_at": now,
+        "batch_id": "BATCH-100",
+        "patient_key": "P-00005",
+        "coi_id": "COI-2269209",
+        "stage": "IN_MANUFACTURING",
+        "temperature_c": -150.2,
+        "chain_of_identity": "INTACT",
+        "qms_release": "PENDING",
+        "mes_status": "MFG_COMPLETE",
+        "erp_status": "AVAILABLE",
+        "systems": [
+            {"id": "MES", "label": "Manufacturing execution", "status": "COMPLETE", "note": "Batch closed in MES."},
+            {"id": "QMS", "label": "Quality management", "status": "PENDING", "note": "Quality has not released."},
+            {"id": "ERP", "label": "Enterprise inventory", "status": "AVAILABLE", "note": "Availability is not release."},
+            {"id": "LOGISTICS", "label": "Cryogenic return", "status": "IN_TRANSIT", "note": f"{active_legs} active legs on the twin."},
+        ],
+        "signals": [
+            {"label": "Potency assay", "status": "BLOCKED"},
+            {"label": "Identity DOB", "status": "CONFLICT"},
+            {"label": "Cold chain", "status": "WATCH"},
+            {"label": "Chain of identity", "status": "INTACT"},
+        ],
+        "anomalies": [
+            "Legacy ERP AVAILABLE while QMS is PENDING.",
+            "One trusted outbound reading above −120 °C.",
+        ],
+        "counts": {
+            "treatment_centers": counts.get("treatment_centers", 24),
+            "plants": counts.get("manufacturing_sites", 6),
+            "couriers": counts.get("couriers", 5),
+            "active_legs": active_legs,
+            "healed_overlays": healed,
+            "nodes": counts.get("nodes", 0),
+            "edges": counts.get("edges", 0),
+        },
+        "requires_human_review": True,
+        "autonomous_action": "none",
+        "scope": "SYNTHETIC_DIGITAL_TWIN",
+        "rule_version": RULE_VERSION,
+        "heal_rule_version": HEAL_RULE,
+        "note": (
+            "Twin is an advisory overlay on frozen source assertions. "
+            "It does not write MES, QMS, identity, or chain of identity."
+        ),
+    }

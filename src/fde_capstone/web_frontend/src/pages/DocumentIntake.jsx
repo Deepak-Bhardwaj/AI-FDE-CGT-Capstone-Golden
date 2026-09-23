@@ -128,7 +128,7 @@ export default function DocumentIntake({ notify, roleName }) {
               </div>
               <div>{lastUpload.proposals.length} proposal(s) raised, each awaiting a named human.</div>
               {lastUpload.notes.map((note) => (
-                <div key={note} className="muted" style={{ marginTop: 6, fontSize: 12.5 }}>· {note}</div>
+                <div key={note} className="muted" style={{ marginTop: 6, fontSize: 14.5 }}>· {note}</div>
               ))}
             </Callout>
           </div>

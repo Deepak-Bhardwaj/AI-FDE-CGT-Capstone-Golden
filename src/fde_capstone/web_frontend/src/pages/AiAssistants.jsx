@@ -22,6 +22,10 @@ export default function AiAssistants({ onRunAgent, patientKey }) {
   const [activity, setActivity] = useState(null);
   const [subjects, setSubjects] = useState({});
   const [running, setRunning] = useState(null);
+  const [reconKey, setReconKey] = useState(patientKey || 'P-00005');
+  const [recon, setRecon] = useState(null);
+  const [reconBusy, setReconBusy] = useState(false);
+  const [reconError, setReconError] = useState('');
 
   const loadActivity = useCallback(() => {
     api.get('/api/agents/activity?limit=25').then((r) => setActivity(r.data));
@@ -32,14 +36,99 @@ export default function AiAssistants({ onRunAgent, patientKey }) {
     loadActivity();
   }, [loadActivity]);
 
-  if (!catalogue) return <Loading />;
-
   const run = async (agentId, subject) => {
     setRunning(agentId);
     await onRunAgent(agentId, subject);
     setRunning(null);
     loadActivity();
   };
+
+  const reconcile = async (event) => {
+    event.preventDefault();
+    setReconBusy(true);
+    setReconError('');
+    const { ok, data } = await api.post('/api/reconciliation/patient', { patient_key: reconKey.trim() });
+    setReconBusy(false);
+    if (!ok) {
+      setRecon(null);
+      setReconError(data.detail || 'Reconciliation was refused.');
+      return;
+    }
+    setRecon(data);
+  };
+
+  const reconPanel = (
+    <section className="recon-card">
+      <div className="recon-card__head">
+        <div>
+          <div className="twin-widget__eyebrow">Identity reconciliation</div>
+          <h2 className="panel__title" style={{ margin: '4px 0 0' }}>Resolve a patient across CRM, clinical and orchestration</h2>
+        </div>
+      </div>
+      <form className="recon-form" onSubmit={reconcile}>
+        <label className="signin__field" style={{ flex: 1, minWidth: 220 }}>
+          <span>Patient key</span>
+          <input
+            className="field mono"
+            value={reconKey}
+            onChange={(e) => setReconKey(e.target.value)}
+            placeholder="P-00005"
+            aria-label="Patient key to reconcile"
+          />
+        </label>
+        <button type="submit" className="btn btn--primary" disabled={reconBusy || !reconKey.trim()}>
+          {reconBusy ? 'Resolving…' : 'Reconcile identity'}
+        </button>
+      </form>
+      {reconError && <Callout tone="fail">{reconError}</Callout>}
+      {recon && (
+        <div className="recon-result">
+          <div className="twin-widget__score">
+            <span>{Math.round((recon.confidence_score || 0) * 100)}</span>
+            <small>confidence</small>
+          </div>
+          <div className="recon-result__body">
+            <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+              <span className="mono">{recon.resolved_patient_key || recon.patient_key || '—'}</span>
+              <Status value={recon.requires_human_review ? 'CONFLICT' : 'PASS'}>
+                {recon.requires_human_review ? 'HITL required' : 'Aligned'}
+              </Status>
+              <Tag>Action: {recon.autonomous_action || 'none'}</Tag>
+            </div>
+            <p className="panel__note" style={{ margin: '8px 0 0' }}>{recon.note}</p>
+            {(recon.conflicts || []).length > 0 && (
+              <div className="exc-card__drivers" style={{ marginTop: 10 }}>
+                {recon.conflicts.map((conflict, index) => (
+                  <span key={index} className="exc-card__chip">
+                    {conflict.type || JSON.stringify(conflict)}
+                  </span>
+                ))}
+              </div>
+            )}
+            {(recon.evidence || []).length > 0 && (
+              <div className="recon-evidence">
+                {recon.evidence.slice(0, 6).map((item, index) => (
+                  <div key={index} className="recon-evidence__row">
+                    <span className="mono">{item.source || item.path}</span>
+                    <span className="subtle">{item.field} = {String(item.value ?? '—')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+
+  if (!catalogue) {
+    return (
+      <>
+        {reconPanel}
+        <Loading />
+      </>
+    );
+  }
 
   return (
     <>
@@ -57,6 +146,8 @@ export default function AiAssistants({ onRunAgent, patientKey }) {
           </div>
         </div>
       </div>
+
+      {reconPanel}
 
       <div className="ai-grid">
         {catalogue.agents.map((agent) => {
@@ -202,7 +293,7 @@ export function AgentResultDetail({ result }) {
                   const value = row[key];
                   if (value === null || value === undefined) return '—';
                   if (typeof value === 'object') return <span className="mono">{JSON.stringify(value)}</span>;
-                  return <span style={{ fontSize: 12.5 }}>{String(value)}</span>;
+                  return <span style={{ fontSize: 14.5 }}>{String(value)}</span>;
                 },
               }))}
               rows={result.findings.map((f, i) => ({ ...f, id: i }))}
@@ -217,7 +308,7 @@ export function AgentResultDetail({ result }) {
           columns={[
             { key: 'source', header: 'Source system', render: (r) => <span className="mono">{r.source}</span> },
             { key: 'fact', header: 'Fact', render: (r) => <span className="mono">{r.fact}</span> },
-            { key: 'value', header: 'Value', render: (r) => <span style={{ fontSize: 12.5 }}>{typeof r.value === 'object' ? JSON.stringify(r.value) : String(r.value)}</span> },
+            { key: 'value', header: 'Value', render: (r) => <span style={{ fontSize: 14.5 }}>{typeof r.value === 'object' ? JSON.stringify(r.value) : String(r.value)}</span> },
             { key: 'ref', header: 'Reference', render: (r) => <span className="mono subtle">{r.ref}</span> },
             { key: 'trust', header: 'Trust', render: (r) => <Status value={r.trust} /> },
           ]}

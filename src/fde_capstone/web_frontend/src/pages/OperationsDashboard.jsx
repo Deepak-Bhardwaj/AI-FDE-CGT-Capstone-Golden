@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
-import { Loading, Panel } from '../components/ui';
+import { Loading, Panel, Status } from '../components/ui';
 import { label } from '../lib/format';
 
 const GATE_NAMES = {
@@ -20,8 +20,11 @@ export default function OperationsDashboard() {
   const [data, setData] = useState(null);
   const [insight, setInsight] = useState(null);
 
+  const [twin, setTwin] = useState(null);
+
   useEffect(() => {
     api.get('/api/overview').then((r) => setData(r.data));
+    api.get('/api/intelligence/digital-twin').then((r) => r.ok && setTwin(r.data));
     api.post('/api/agents/AG-TRIAGE/invoke', { subject: '' })
       .then(({ ok, data: payload }) => ok && setInsight(payload.result));
   }, []);
@@ -109,6 +112,37 @@ export default function OperationsDashboard() {
           <div className="kpi__caption">Invisible to every structured data check</div>
         </div>
       </div>
+
+      {twin && (
+        <section className={`twin-widget twin-widget--${(twin.status || 'DEGRADED').toLowerCase()}`}>
+          <div className="twin-widget__head">
+            <div>
+              <div className="twin-widget__eyebrow">Digital twin health</div>
+              <h2 className="twin-widget__title">{twin.batch_id} · {twin.patient_key}</h2>
+            </div>
+            <div className="twin-widget__score">
+              <span>{Math.round((twin.health_score || 0) * 100)}</span>
+              <small>health</small>
+            </div>
+          </div>
+          <div className="twin-widget__status">
+            <Status value={twin.status === 'HEALTHY' ? 'PASS' : 'FAIL'}>{twin.status}</Status>
+            <span className="mono subtle">{twin.stage}</span>
+            <span className="mono subtle">{twin.temperature_c}°C</span>
+            <span className="mono subtle">COI {twin.chain_of_identity}</span>
+          </div>
+          <div className="twin-widget__systems">
+            {(twin.systems || []).map((system) => (
+              <div key={system.id} className="twin-chip">
+                <span className="twin-chip__id">{system.id}</span>
+                <Status value={system.status}>{system.status}</Status>
+                <span className="subtle">{system.note}</span>
+              </div>
+            ))}
+          </div>
+          <p className="panel__note" style={{ marginBottom: 0 }}>{twin.note}</p>
+        </section>
+      )}
 
       <div className="dash-grid">
         <Panel

@@ -5,25 +5,53 @@ import { hours, label } from '../lib/format';
 
 export function ExceptionQueue() {
   const [data, setData] = useState(null);
-  useEffect(() => { api.get('/api/exceptions?limit=25').then((r) => setData(r.data)); }, []);
+  useEffect(() => {
+    api.get('/api/intelligence/exceptions?limit=40').then((r) => setData(r.data));
+  }, []);
   if (!data) return <Loading />;
 
+  const rows = data.exceptions || [];
   return (
-    <Panel title="Open exceptions" note={data.method} flush>
-      <DataTable
-        columns={[
-          { key: 'exception_id', header: 'Reference', render: (r) => <span className="mono">{r.exception_id}</span> },
-          { key: 'patient_key', header: 'Patient', render: (r) => <span className="mono">{r.patient_key || '—'}</span> },
-          { key: 'kind', header: 'Type', render: (r) => label(r.kind.split(':').pop()) },
-          { key: 'score', header: 'Impact score', align: 'right', render: (r) => <strong style={{ color: 'var(--fail)' }}>{r.score}</strong> },
-          { key: 'age_hours', header: 'Open for', align: 'right', render: (r) => (r.age_hours ? hours(r.age_hours) : '—') },
-          { key: 'owner', header: 'Owner', render: (r) => (r.owner ? r.owner : <Status value="FAIL">Unassigned</Status>) },
-          { key: 'authority', header: 'Authority', render: (r) => <span className="muted">{r.authority}</span> },
-          { key: 'drivers', header: 'Why it ranks here', render: (r) => <span className="subtle">{r.drivers.join(' · ')}</span> },
-        ]}
-        rows={data.exceptions.map((e) => ({ ...e, id: e.exception_id }))}
-      />
-    </Panel>
+    <>
+      <div className="hud-strip">
+        <span className="hud-strip__live"><span className="pulse-dot" aria-hidden="true" /> Exception intelligence</span>
+        <span className="hud-strip__sep" aria-hidden="true" />
+        <span>{rows.length} ranked anomalies</span>
+        <span className="hud-strip__sep" aria-hidden="true" />
+        <span>Autonomous action <span className="hud-strip__id">{data.autonomous_action || 'none'}</span></span>
+      </div>
+      <p className="panel__note" style={{ marginTop: 0, marginBottom: 16 }}>{data.method || data.note}</p>
+      {rows.length === 0 ? (
+        <div className="empty">No high-priority anomalies in the frozen estate.</div>
+      ) : (
+        <div className="exc-grid">
+          {rows.map((row) => {
+            const severity = row.severity || 'HIGH';
+            return (
+              <article key={row.exception_id} className={`exc-card exc-card--${severity}`}>
+                <div className="exc-card__head">
+                  <span className="exc-card__id">{row.exception_id}</span>
+                  <Status value={severity === 'CRITICAL' || severity === 'HIGH' ? 'FAIL' : 'UNKNOWN'}>{severity}</Status>
+                </div>
+                <div className="exc-card__patient mono">{row.patient_key || row.patient_id || '—'}</div>
+                <div className="exc-card__kind">{label(String(row.kind || row.exception_type || 'anomaly').split(':').pop())}</div>
+                <p className="exc-card__rec">{row.recommendation || 'Requires human review. No autonomous action.'}</p>
+                <div className="exc-card__meta">
+                  <span>Score {row.score ?? '—'}</span>
+                  <span>{row.age_hours ? hours(row.age_hours) : 'Fresh'}</span>
+                  <span>{row.authority || 'Human reviewer'}</span>
+                </div>
+                <div className="exc-card__drivers">
+                  {(row.drivers || []).slice(0, 4).map((driver) => (
+                    <span key={driver} className="exc-card__chip">{driver}</span>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
 

@@ -13,7 +13,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-from cgt_orchestrator.paths import repo_root
+from ..source_cases import BASELINE
 
 RULE_VERSION = "patient-resolver-v1"
 AUTHORITY_COI = "human-chain-of-identity"
@@ -38,7 +38,7 @@ class PatientResolver:
     """Reconcile CRM, clinical and orchestration identifiers from local CSV evidence."""
 
     def __init__(self, root: Path | None = None) -> None:
-        self.root = Path(root) if root is not None else repo_root()
+        self.root = Path(root) if root is not None else BASELINE
         self._orch_by_key = {row["patient_key"]: row for row in _read_csv(self.root / ORCH_PATH)}
         self._crm_by_key = {row["patient_key"]: row for row in _read_csv(self.root / CRM_PATH)}
         self._clinical_by_key = {

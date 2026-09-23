@@ -41,6 +41,9 @@ def test_api_exposes_health_and_bounded_poc_routes(tmp_path):
         assert "/api/enrolment" in paths
         assert "/api/tracking" in paths
         assert "/api/intake" in paths
+        assert "/api/intelligence/exceptions" in paths
+        assert "/api/intelligence/digital-twin" in paths
+        assert "/api/reconciliation/patient" in paths
         assert not any("release/auto" in path for path in paths)
         assert not any(
             "agent" in path and not path.startswith("/api/agents")
@@ -192,6 +195,46 @@ def test_react_dashboard_mocks_return_mappable_arrays(tmp_path):
     assert isinstance(identity.json()["queue"], list)
     assert decide.status_code == 200
     assert decide.json()["decision"]["decision_id"]
+    assert preflight.status_code in {200, 204}
+    assert preflight.headers.get("access-control-allow-origin") == "http://localhost:5173"
+
+
+def test_intelligence_and_reconciliation_are_wired_for_the_react_app(tmp_path):
+    from fde_capstone.api import create_app
+
+    with TestClient(create_app(tmp_path / "intel-ui.db")) as client:
+        exceptions = client.get("/api/intelligence/exceptions")
+        twin = client.get("/api/intelligence/digital-twin")
+        reconcile = client.post("/api/reconciliation/patient", json={"patient_key": "P-00001"})
+        preflight = client.options(
+            "/api/reconciliation/patient",
+            headers={
+                "Origin": "http://localhost:5173",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+    assert exceptions.status_code == 200
+    body = exceptions.json()
+    assert isinstance(body["exceptions"], list)
+    assert body["autonomous_action"] == "none"
+    assert body["requires_human_review"] is True
+    for row in body["exceptions"]:
+        assert isinstance(row.get("drivers"), list)
+        assert "patient_key" in row
+    assert twin.status_code == 200
+    health = twin.json()
+    assert health["status"] in {"HEALTHY", "DEGRADED"}
+    assert isinstance(health["systems"], list) and health["systems"]
+    assert isinstance(health["anomalies"], list)
+    assert health["autonomous_action"] == "none"
+    assert reconcile.status_code == 200
+    resolved = reconcile.json()
+    assert resolved["patient_key"] == "P-00001"
+    assert resolved["resolved_patient_key"] == "P-00001"
+    assert isinstance(resolved["confidence_score"], (int, float))
+    assert isinstance(resolved["evidence"], list) and resolved["evidence"]
+    assert resolved["autonomous_action"] == "none"
     assert preflight.status_code in {200, 204}
     assert preflight.headers.get("access-control-allow-origin") == "http://localhost:5173"
 

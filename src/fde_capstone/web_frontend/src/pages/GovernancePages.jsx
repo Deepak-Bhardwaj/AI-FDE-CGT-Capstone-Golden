@@ -73,7 +73,7 @@ export function PatientIdentity({ notify, can }) {
               <Tag>Applied automatically: {String(p.auto_apply)}</Tag>
             </div>
             <div style={{ fontStyle: 'italic' }}>“{p.excerpt}”</div>
-            <div className="muted" style={{ marginTop: 8, fontSize: 12.5 }}>
+            <div className="muted" style={{ marginTop: 8, fontSize: 14.5 }}>
               Proposes state <strong>{label(p.proposed_state)}</strong> · requires {p.authority}
             </div>
           </Callout>
@@ -118,7 +118,7 @@ export function DocumentSecurity({ notify }) {
       >
         <textarea
           className="field"
-          style={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: 12.5, minHeight: 84 }}
+          style={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: 14.5, minHeight: 84 }}
           value={probeText}
           onChange={(e) => setProbeText(e.target.value)}
           aria-label="Adversarial text"

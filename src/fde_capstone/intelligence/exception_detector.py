@@ -12,9 +12,15 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from cgt_orchestrator.paths import db_path, repo_root
+from ..source_cases import BASELINE
 
 RULE_VERSION = "exception-detector-v1"
+
+
+def _db_path(database_path: str | None = None) -> Path:
+    if database_path:
+        return Path(database_path)
+    return BASELINE / "data" / "cgt_legacy.db"
 
 
 def _rows(con: sqlite3.Connection, sql: str, args: tuple = ()) -> list[dict[str, Any]]:
@@ -47,20 +53,38 @@ def _exception(
 
 
 def detect_exceptions(database_path: str | None = None) -> list[dict[str, Any]]:
-    """Return ranked cross-system contradictions from the local SQLite estate."""
-    path = str(database_path or db_path())
-    con = sqlite3.connect(path)
+    """Return ranked cross-system contradictions from the local estate.
+
+    SQLite tables are optional. Missing tables skip that detector; CSV identity
+    collisions still fire from the frozen source baseline.
+    """
+    path = str(_db_path(database_path))
     found: list[dict[str, Any]] = []
+    con: sqlite3.Connection | None = None
     try:
-        found.extend(_mes_qms_conflicts(con))
-        found.extend(_slot_conflicts(con))
-        found.extend(_impossible_shipments(con))
-        found.extend(_withdrawn_consent_in_flight(con))
-        found.extend(_open_deviations(con))
-        found.extend(_expired_site_controls(con))
-        found.extend(_duplicate_mrns())
+        con = sqlite3.connect(path)
+        detectors = (
+            _mes_qms_conflicts,
+            _slot_conflicts,
+            _impossible_shipments,
+            _withdrawn_consent_in_flight,
+            _open_deviations,
+            _expired_site_controls,
+        )
+        for detector in detectors:
+            try:
+                found.extend(detector(con))
+            except sqlite3.OperationalError:
+                continue
+    except sqlite3.Error:
+        pass
     finally:
-        con.close()
+        if con is not None:
+            con.close()
+    try:
+        found.extend(_duplicate_mrns())
+    except FileNotFoundError:
+        pass
     order = {"CRITICAL": 0, "HIGH": 1, "MAJOR": 2, "MEDIUM": 3, "LOW": 4}
     found.sort(key=lambda row: (order.get(row["severity"], 9), row["patient_id"], row["exception_id"]))
     return found
@@ -274,7 +298,7 @@ def _duplicate_mrns() -> list[dict[str, Any]]:
     SQLite can drop or reshape identifier disagreements. POC 1 reads the same
     CSVs; POC 2 must not treat ``data/cgt_legacy.db`` as the identity source.
     """
-    path = repo_root() / "data" / "raw" / "patients.csv"
+    path = BASELINE / "data" / "raw" / "patients.csv"
     by_mrn: dict[str, list[dict[str, str]]] = defaultdict(list)
     with Path(path).open(newline="", encoding="utf-8") as handle:
         for row in csv.DictReader(handle):

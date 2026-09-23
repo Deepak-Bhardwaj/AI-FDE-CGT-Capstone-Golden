@@ -23,6 +23,7 @@ from . import frontend_mocks
 from .application import CapstoneApplication
 from .demo import run_demo
 from .disruption_preview import list_injects, preview_inject
+from .intelligence.digital_twin import twin_health
 from .intelligence.exception_detector import detect_exceptions, detect_for_patient
 from .model import Principal
 from .reconciliation.patient_resolver import resolve_patient
@@ -80,6 +81,16 @@ class AgentInvokeRequest(BaseModel):
 
 class LoosePayload(BaseModel):
     model_config = ConfigDict(extra="allow")
+
+
+class ReconcilePatientRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    patient_key: str = ""
+    orchestration_id: str = ""
+    crm_id: str = ""
+    clinical_id: str = ""
+    mrn: str = ""
 
 
 class SlotReservationRequest(BaseModel):
@@ -294,6 +305,73 @@ def _demo_agent_result(agent_id: str, subject: str = "") -> dict[str, Any]:
         "model": {"name": "bounded-fake", "version": "off", "prompt_version": "academic-poc"},
         "invoked_at": now,
         "applied_automatically": False,
+    }
+
+
+_SEVERITY_SCORE = {"CRITICAL": 95, "HIGH": 82, "MAJOR": 74, "MEDIUM": 58, "LOW": 32}
+
+
+def _normalize_intel_exception(row: dict[str, Any]) -> dict[str, Any]:
+    severity = str(row.get("severity") or "HIGH").upper()
+    patient = str(row.get("patient_key") or row.get("patient_id") or "")
+    kind = str(row.get("exception_type") or row.get("kind") or "ANOMALY")
+    systems = row.get("conflicting_systems") if isinstance(row.get("conflicting_systems"), list) else []
+    evidence = row.get("evidence") if isinstance(row.get("evidence"), list) else []
+    drivers = [str(item) for item in systems if item]
+    if not drivers:
+        for item in evidence:
+            if not isinstance(item, dict):
+                continue
+            value = item.get("note") or item.get("field") or item.get("eval")
+            if value:
+                drivers.append(str(value))
+    if not drivers:
+        drivers = [str(row.get("recommendation") or "Requires human review")]
+    return {
+        **row,
+        "exception_id": row.get("exception_id") or "EXC-UNKNOWN",
+        "patient_key": patient,
+        "patient_id": patient,
+        "kind": kind,
+        "exception_type": kind,
+        "severity": severity,
+        "score": row.get("score") if isinstance(row.get("score"), (int, float)) else _SEVERITY_SCORE.get(severity, 70),
+        "age_hours": row.get("age_hours") if isinstance(row.get("age_hours"), (int, float)) else 8,
+        "owner": row.get("owner"),
+        "authority": row.get("authority") or row.get("authority_requirement") or "Human reviewer",
+        "drivers": drivers,
+        "recommendation": row.get("recommendation") or "",
+        "requires_human_review": True,
+        "autonomous_action": "none",
+        "evidence": evidence,
+        "conflicting_systems": systems,
+    }
+
+
+def _public_intelligence_exceptions(patient_key: str | None = None, limit: int = 40) -> dict[str, Any]:
+    try:
+        rows = detect_for_patient(patient_key) if patient_key else detect_exceptions()
+    except Exception:
+        rows = []
+    if not isinstance(rows, list):
+        rows = []
+    normalized = [_normalize_intel_exception(row) for row in rows if isinstance(row, dict)]
+    ranked = [
+        row
+        for row in normalized
+        if str(row.get("severity") or "").upper() in {"CRITICAL", "HIGH", "MAJOR"}
+    ]
+    cap = max(1, min(limit, 80))
+    shown = ranked[:cap]
+    return {
+        "count": len(normalized),
+        "shown": len(shown),
+        "exceptions": shown,
+        "method": "Ranked by severity from frozen source assertions. Observe/recommend only.",
+        "requires_human_review": True,
+        "autonomous_action": "none",
+        "scope": "SYNTHETIC_SOURCE_ASSERTIONS_ONLY",
+        "note": "Recommendations only. Does not change patient, batch, QMS, or shipment state.",
     }
 
 
@@ -601,6 +679,45 @@ def create_app(
     @app.post("/api/attestations/{attestation_id}/withdraw")
     def api_withdraw_attestation(attestation_id: str) -> dict[str, Any]:
         return frontend_mocks.withdraw_attestation(attestation_id)
+
+    @app.get("/api/intelligence/exceptions")
+    def api_intelligence_exceptions(patient_key: str | None = None, limit: int = 40) -> dict[str, Any]:
+        return _public_intelligence_exceptions(patient_key, limit)
+
+    @app.get("/api/intelligence/digital-twin")
+    def api_digital_twin() -> dict[str, Any]:
+        payload = twin_health()
+        payload.setdefault("systems", [])
+        payload.setdefault("signals", [])
+        payload.setdefault("anomalies", [])
+        return payload
+
+    @app.post("/api/reconciliation/patient")
+    def api_reconcile_patient(payload: ReconcilePatientRequest | None = None) -> dict[str, Any]:
+        body = payload or ReconcilePatientRequest()
+        key = (body.patient_key or body.orchestration_id or "").strip()
+        result = resolve_patient(
+            orchestration_id=key or None,
+            crm_id=body.crm_id or None,
+            clinical_id=body.clinical_id or None,
+            mrn=body.mrn or None,
+        )
+        confidence = result.get("confidence_score")
+        return {
+            "patient_key": key,
+            "resolved_patient_key": result.get("resolved_patient_key") or "",
+            "confidence_score": confidence if isinstance(confidence, (int, float)) else 0.0,
+            "requires_human_review": bool(result.get("requires_human_review", True)),
+            "conflicts": result.get("conflicts") if isinstance(result.get("conflicts"), list) else [],
+            "evidence": result.get("evidence") if isinstance(result.get("evidence"), list) else [],
+            "authority_requirement": result.get("authority_requirement") or "human-chain-of-identity",
+            "rule_version": result.get("rule_version"),
+            "reconciliation": result,
+            "result": result,
+            "autonomous_action": "none",
+            "scope": "SYNTHETIC_SOURCE_ASSERTIONS_ONLY",
+            "note": "Evidence pack only. Does not merge identity or rewrite source rows.",
+        }
 
     @app.get("/", include_in_schema=False)
     def control_tower() -> FileResponse:
